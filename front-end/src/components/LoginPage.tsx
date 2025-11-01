@@ -20,77 +20,77 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
 
-  // 生成验证码
+  // Generate random captcha
   const generateCaptcha = (): string => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
     for (let i = 0; i < 4; i++) {
       result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return result;
   };
 
-  // 初始化验证码
+  // Initialize captcha on first load
   React.useEffect(() => {
     setCaptchaCode(generateCaptcha());
   }, []);
 
-  // 刷新验证码
+  // Refresh captcha
   const refreshCaptcha = () => {
     setCaptchaCode(generateCaptcha());
-    setCaptcha('');
+    setCaptcha("");
     if (errors.captcha) {
-      setErrors(prev => ({ ...prev, captcha: undefined }));
+      setErrors((prev) => ({ ...prev, captcha: undefined }));
     }
   };
 
+  // Validate form inputs
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
-    // 验证邮箱
+    // Email validation
     if (!email) {
-      newErrors.email = "请输入邮箱地址";
+      newErrors.email = "Please enter your email address.";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = "请输入有效的邮箱地址";
+      newErrors.email = "Please enter a valid email address.";
     }
 
-    // 验证密码
+    // Password validation
     if (!password) {
-      newErrors.password = "请输入密码";
+      newErrors.password = "Please enter your password.";
     } else if (password.length < 6) {
-      newErrors.password = "密码至少需要6个字符";
+      newErrors.password = "Password must be at least 6 characters.";
     }
 
-    // 验证验证码
+    // Captcha validation
     if (!captcha) {
-      newErrors.captcha = "请输入验证码";
+      newErrors.captcha = "Please enter the captcha.";
     } else if (captcha.toLowerCase() !== captchaCode.toLowerCase()) {
-      newErrors.captcha = "验证码错误";
+      newErrors.captcha = "Incorrect captcha.";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  // Handle login button click
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setIsLoading(true);
 
     try {
-      // 模拟登录请求
+      // Simulate a login request
       await new Promise((resolve) => setTimeout(resolve, 1500));
-      console.log("登录成功:", { email, password });
-      // 登录成功后跳转到首页
+      console.log("Login successful:", { email, password });
+      // Redirect to home page after login success
       onLogin();
     } catch (error) {
-      console.error("登录失败:", error);
-      alert("登录失败，请重试");
-      // 登录失败时刷新验证码
+      console.error("Login failed:", error);
+      alert("Login failed. Please try again.");
+      // Refresh captcha if login fails
       refreshCaptcha();
     } finally {
       setIsLoading(false);
@@ -100,7 +100,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h1 className="login-title">欢迎使用 测试网站</h1>
+        <h1 className="login-title">Welcome to Test Website</h1>
 
         <form onSubmit={handleLogin} className="login-form">
           <div className="input-group">
@@ -113,13 +113,11 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                   setErrors((prev) => ({ ...prev, email: undefined }));
                 }
               }}
-              placeholder="请输入邮箱"
+              placeholder="Enter your email"
               className={`login-input ${errors.email ? "error" : ""}`}
               disabled={isLoading}
             />
-            {errors.email && (
-              <div className="error-message">{errors.email}</div>
-            )}
+            {errors.email && <div className="error-message">{errors.email}</div>}
           </div>
 
           <div className="input-group password-group">
@@ -132,7 +130,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                   setErrors((prev) => ({ ...prev, password: undefined }));
                 }
               }}
-              placeholder="请输入密码"
+              placeholder="Enter your password"
               className={`login-input ${errors.password ? "error" : ""}`}
               disabled={isLoading}
             />
@@ -143,6 +141,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
               disabled={isLoading}
             >
               {showPassword ? (
+                // Eye-off icon
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path
                     d="M2.99902 3L20.999 21M9.8433 9.91364C9.32066 10.4536 8.99902 11.1892 8.99902 12C8.99902 13.6569 10.3422 15 11.999 15C12.8215 15 13.5667 14.669 14.1086 14.133M6.49902 6.64715C4.59972 7.90034 3.15305 9.78394 2.45703 12C3.73128 16.0571 7.52159 19 11.9992 19C13.9881 19 15.8414 18.4194 17.3988 17.4184M10.999 5.04939C11.328 5.01673 11.6617 5 11.9992 5C16.4769 5 20.2672 7.94291 21.5414 12C21.2607 12.894 20.8577 13.7338 20.3522 14.5"
@@ -153,6 +152,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                   />
                 </svg>
               ) : (
+                // Eye icon
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path
                     d="M2.45703 12C3.73128 7.94288 7.52159 5 11.9992 5C16.4769 5 20.2672 7.94291 21.5414 12C20.2672 16.0571 16.4769 19 11.9992 19C7.52159 19 3.73128 16.0571 2.45703 12Z"
@@ -184,20 +184,32 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                 onChange={(e) => {
                   setCaptcha(e.target.value);
                   if (errors.captcha) {
-                    setErrors(prev => ({ ...prev, captcha: undefined }));
+                    setErrors((prev) => ({ ...prev, captcha: undefined }));
                   }
                 }}
-                placeholder="请输入验证码"
+                placeholder="Enter the captcha"
                 className={`login-input captcha-input ${errors.captcha ? "error" : ""}`}
                 disabled={isLoading}
                 maxLength={4}
               />
               <div className="captcha-display" onClick={refreshCaptcha}>
                 <span className="captcha-text">{captchaCode}</span>
-                <button type="button" className="captcha-refresh" title="点击刷新验证码">
+                <button type="button" className="captcha-refresh" title="Click to refresh captcha">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path d="M1 4v6h6M23 20v-6h-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path
+                      d="M1 4v6h6M23 20v-6h-6"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 </button>
               </div>
@@ -209,7 +221,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
 
           <div className="forgot-password">
             <a href="#" className="forgot-link">
-              忘记密码？
+              Forgot your password?
             </a>
           </div>
 
@@ -241,10 +253,10 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                     />
                   </circle>
                 </svg>
-                登录中...
+                Logging in...
               </div>
             ) : (
-              "登录"
+              "Login"
             )}
           </button>
         </form>
