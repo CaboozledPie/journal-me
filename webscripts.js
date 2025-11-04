@@ -1,23 +1,25 @@
 let accessToken = null;
 
 function handleCredentialResponse(response) {
-  const token = response.credential; // Google ID token
+    const token = response.credential; // Google ID token
 
-  // Send it to your Django backend for verification
-  fetch("http://127.0.0.1:8000/api/auth/google/", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ token }),
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      console.log("Backend response:", data);
-      alert(`Logged in as: ${data.user}`);
+    // Send it to your Django backend for verification
+    fetch("http://127.0.0.1:8000/api/auth/google/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
     })
-    .catch((err) => console.error("Error:", err));
+        .then((res) => res.json())
+        .then((data) => {
+            console.log("Backend response:", data);
+            accessToken = data.access // change to localStorage later!
+            alert(`Logged in as: ${data.name}`);
+        })
+        .catch((err) => console.error("Error:", err));
 };
 
 window.protectedView = function() {
+    console.log(accessToken);
     fetch("http://127.0.0.1:8000/api/protected/", {
         headers: {
             "Authorization": `Bearer ${accessToken}`,
