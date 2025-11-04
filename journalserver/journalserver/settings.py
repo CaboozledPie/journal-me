@@ -46,6 +46,9 @@ INSTALLED_APPS = [
     
     # cors
     'corsheaders',
+
+    # tells Django the journal app exists
+    'journal',
 ]
 
 MIDDLEWARE = [
