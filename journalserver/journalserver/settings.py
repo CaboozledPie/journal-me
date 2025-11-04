@@ -31,18 +31,28 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'rest_framework',
+    'rest_framework_simplejwt',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
+    # django apps
+    'api',
+    'authapi',
+    
+    # cors
+    'corsheaders',
 
     # tells Django the journal app exists
     'journal',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -123,3 +133,33 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# google auth stuffs
+AUTH_USER_MODEL = "authapi.JournalUser"
+SITE_ID = 1
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
+# rest framework auth
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES:': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.AllowAny',  # can be IsAuthenticated if you want stricter defaults
+    ),
+}
+
+# CORS stuff
+CORS_ALLOW_ALL_ORIGINS = True # disable later!
+#CORS_ALLOWED_ORIGINS = [
+#    "http://127.0.0.1:5001",
+#    "http://localhost:5001",
+#    "https://caboozledpie.github.io",
+#]
+CORS_ALLOW_HEADERS = [
+    'authorization',
+    'content-type',
+    'accept',
+]
+CORS_ALLOW_CREDENTIALS = True

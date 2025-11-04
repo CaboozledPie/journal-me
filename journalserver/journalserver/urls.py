@@ -17,10 +17,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-def hello_world(request):
-    return HttpResponse("Hello from the Journal backend!")
-
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('journal.urls')),
+    path('api/', include('api.urls')),
+    path('api/auth/', include('authapi.urls')),
+    path('api/journal', include('journal.urls')),
 ]
