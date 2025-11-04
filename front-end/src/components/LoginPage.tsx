@@ -1,265 +1,56 @@
-import React, { useState } from "react";
+import { GoogleLogin } from "@react-oauth/google";
+import React from "react";
 import "./LoginPage.css";
-
-interface FormErrors {
-  email?: string;
-  password?: string;
-  captcha?: string;
-}
 
 interface LoginPageProps {
   onLogin: () => void;
 }
 
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [captcha, setCaptcha] = useState("");
-  const [captchaCode, setCaptchaCode] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [isLoading, setIsLoading] = useState(false);
-
-  // Generate random captcha
-  const generateCaptcha = (): string => {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    let result = "";
-    for (let i = 0; i < 4; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
-  };
-
-  // Initialize captcha on first load
-  React.useEffect(() => {
-    setCaptchaCode(generateCaptcha());
-  }, []);
-
-  // Refresh captcha
-  const refreshCaptcha = () => {
-    setCaptchaCode(generateCaptcha());
-    setCaptcha("");
-    if (errors.captcha) {
-      setErrors((prev) => ({ ...prev, captcha: undefined }));
-    }
-  };
-
-  // Validate form inputs
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {};
-
-    // Email validation
-    if (!email) {
-      newErrors.email = "Please enter your email address.";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = "Please enter a valid email address.";
-    }
-
-    // Password validation
-    if (!password) {
-      newErrors.password = "Please enter your password.";
-    } else if (password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters.";
-    }
-
-    // Captcha validation
-    if (!captcha) {
-      newErrors.captcha = "Please enter the captcha.";
-    } else if (captcha.toLowerCase() !== captchaCode.toLowerCase()) {
-      newErrors.captcha = "Incorrect captcha.";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  // Handle login button click
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) return;
-
-    setIsLoading(true);
-
-    try {
-      // Simulate a login request
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      console.log("Login successful:", { email, password });
-      // Redirect to home page after login success
-      onLogin();
-    } catch (error) {
-      console.error("Login failed:", error);
-      alert("Login failed. Please try again.");
-      // Refresh captcha if login fails
-      refreshCaptcha();
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className="login-container">
       <div className="login-card">
         <h1 className="login-title">Welcome to Test Website</h1>
 
-        <form onSubmit={handleLogin} className="login-form">
-          <div className="input-group">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                if (errors.email) {
-                  setErrors((prev) => ({ ...prev, email: undefined }));
-                }
-              }}
-              placeholder="Enter your email"
-              className={`login-input ${errors.email ? "error" : ""}`}
-              disabled={isLoading}
-            />
-            {errors.email && <div className="error-message">{errors.email}</div>}
-          </div>
+        <div className="google-login">
+          <p style={{ margin: "15px 0", fontWeight: 500 }}>
+            Sign in with Google
+          </p>
+          <GoogleLogin
+            onSuccess={(credentialResponse) => {
+              const idToken = credentialResponse.credential;
+              console.log("✅ Google ID Token:", idToken);
 
-          <div className="input-group password-group">
-            <input
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                if (errors.password) {
-                  setErrors((prev) => ({ ...prev, password: undefined }));
-                }
-              }}
-              placeholder="Enter your password"
-              className={`login-input ${errors.password ? "error" : ""}`}
-              disabled={isLoading}
-            />
-            <button
-              type="button"
-              className="password-toggle"
-              onClick={() => setShowPassword(!showPassword)}
-              disabled={isLoading}
-            >
-              {showPassword ? (
-                // Eye-off icon
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M2.99902 3L20.999 21M9.8433 9.91364C9.32066 10.4536 8.99902 11.1892 8.99902 12C8.99902 13.6569 10.3422 15 11.999 15C12.8215 15 13.5667 14.669 14.1086 14.133M6.49902 6.64715C4.59972 7.90034 3.15305 9.78394 2.45703 12C3.73128 16.0571 7.52159 19 11.9992 19C13.9881 19 15.8414 18.4194 17.3988 17.4184M10.999 5.04939C11.328 5.01673 11.6617 5 11.9992 5C16.4769 5 20.2672 7.94291 21.5414 12C21.2607 12.894 20.8577 13.7338 20.3522 14.5"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              ) : (
-                // Eye icon
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M2.45703 12C3.73128 7.94288 7.52159 5 11.9992 5C16.4769 5 20.2672 7.94291 21.5414 12C20.2672 16.0571 16.4769 19 11.9992 19C7.52159 19 3.73128 16.0571 2.45703 12Z"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              )}
-            </button>
-            {errors.password && (
-              <div className="error-message">{errors.password}</div>
-            )}
-          </div>
+              // Send the token to backend for verification
+              fetch("http://127.0.0.1:5001/auth/google", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token: idToken }),
+              })
+                .then((res) => res.json())
+                .then((data) => {
+                  console.log("Backend verification result:", data);
 
-          <div className="input-group captcha-group">
-            <div className="captcha-container">
-              <input
-                type="text"
-                value={captcha}
-                onChange={(e) => {
-                  setCaptcha(e.target.value);
-                  if (errors.captcha) {
-                    setErrors((prev) => ({ ...prev, captcha: undefined }));
+                  //=================================
+                  //this part for check if the backend give me the permition to login
+                  if (data.success) {
+                    onLogin(); // redirect to homepage on success
+                  } else {
+                    alert("Google token verification failed!");
                   }
-                }}
-                placeholder="Enter the captcha"
-                className={`login-input captcha-input ${errors.captcha ? "error" : ""}`}
-                disabled={isLoading}
-                maxLength={4}
-              />
-              <div className="captcha-display" onClick={refreshCaptcha}>
-                <span className="captcha-text">{captchaCode}</span>
-                <button type="button" className="captcha-refresh" title="Click to refresh captcha">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M1 4v6h6M23 20v-6h-6"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            {errors.captcha && (
-              <div className="error-message">{errors.captcha}</div>
-            )}
-          </div>
-
-          <div className="forgot-password">
-            <a href="#" className="forgot-link">
-              Forgot your password?
-            </a>
-          </div>
-
-          <button type="submit" className="login-btn" disabled={isLoading}>
-            {isLoading ? (
-              <div className="loading-spinner">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <circle
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeDasharray="31.416"
-                    strokeDashoffset="31.416"
-                  >
-                    <animate
-                      attributeName="stroke-dasharray"
-                      dur="2s"
-                      values="0 31.416;15.708 15.708;0 31.416"
-                      repeatCount="indefinite"
-                    />
-                    <animate
-                      attributeName="stroke-dashoffset"
-                      dur="2s"
-                      values="0;-15.708;-31.416"
-                      repeatCount="indefinite"
-                    />
-                  </circle>
-                </svg>
-                Logging in...
-              </div>
-            ) : (
-              "Login"
-            )}
-          </button>
-        </form>
+                })
+                 //=================================
+                .catch((err) => {
+                  console.error("Network error:", err);
+                  alert("Network error, please try again.");
+                });
+            }}
+            onError={() => {
+              console.log("❌ Google Login Failed");
+              alert("Google login failed, please try again.");
+            }}
+          />
+        </div>
       </div>
     </div>
   );
