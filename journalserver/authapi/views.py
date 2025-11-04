@@ -15,7 +15,7 @@ def google_auth(request):
         idinfo = id_token.verify_oauth2_token(
             token,
             requests.Request(),
-            "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
+            "219694033881-4od4hi84uakag1cf7fuucm6s6u8q7ef9.apps.googleusercontent.com"
         )
 
         email = idinfo['email']
