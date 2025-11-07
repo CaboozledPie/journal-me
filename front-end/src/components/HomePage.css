@@ -41,6 +41,7 @@
 
 .home-content {
   display: flex;
+  flex-direction: column; /* stack items vertically */
   align-items: center;
   justify-content: center;
   height: calc(100vh - 84px); /* 减去header高度 */
@@ -98,4 +99,48 @@
   .welcome-message h2 {
     font-size: 24px;
   }
+}
+
+.post-creator {
+  margin-bottom: 1.5rem;
+}
+
+.post-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  resize: none;
+  margin-bottom: 10px;
+}
+
+.add-post-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.add-post-btn:hover {
+  background-color: #0056b3;
+}
+
+.posts-list {
+  margin-top: 1.5rem;
+  color: black;
+}
+
+.post-item {
+  background-color: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+h2{
+  color: black;
 }
