@@ -38,6 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # Django REST Framework testing tools (for API tests)
+    'rest_framework', 
+
     # tells Django the journal app exists
     'journal',
 ]
