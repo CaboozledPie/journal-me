@@ -1,0 +1,8 @@
+front-end-old/
+node_modules/
+dist/
+.vite/
+.cache/
+.env
+.env.local
+.DS_Store
