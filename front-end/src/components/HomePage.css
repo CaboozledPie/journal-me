@@ -41,6 +41,7 @@
 
 .home-content {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   height: calc(100vh - 84px); /* 减去header高度 */
@@ -98,4 +99,45 @@
   .welcome-message h2 {
     font-size: 24px;
   }
+}
+
+.post-item {
+  background: #f8f8f8;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  color: black;
+}
+
+.post-creator {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* center the textarea and button */
+  gap: 10px;
+  width: 100%;
+  max-width: 500px; /* optional: restrict width */
+}
+
+.home-content {
+  display: flex;
+  flex-direction: column; /* stack vertically */
+  align-items: center;    /* center horizontally */
+  justify-content: center; /* center vertically */
+  width: 100%;
+  height: calc(100vh - 84px); /* full page minus header */
+  gap: 20px;
+  padding: 0 20px;
+}
+
+.posts-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* center posts horizontally */
+  gap: 10px;
+  width: 100%;
+  max-width: 500px;
+}
+
+h2{
+  color: black;
 }
