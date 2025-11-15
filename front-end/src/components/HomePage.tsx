@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./HomePage.css"; // reuse same styles for layout
+import "./HomePage.css";
 
 interface PostPageProps {
   onLogout: () => void;
@@ -8,11 +8,30 @@ interface PostPageProps {
 const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
   const [text, setText] = useState("");
   const [posts, setPosts] = useState<string[]>([]);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editText, setEditText] = useState("");
 
   const handleAdd = () => {
     if (!text.trim()) return;
     setPosts([...posts, text]);
     setText("");
+  };
+
+  const handleDelete = (index: number) => {
+    setPosts(posts.filter((_, i) => i !== index));
+  };
+
+  const startEditing = (index: number) => {
+    setEditingIndex(index);
+    setEditText(posts[index]);
+  };
+
+  const saveEdit = (index: number) => {
+    const updated = [...posts];
+    updated[index] = editText;
+    setPosts(updated);
+    setEditingIndex(null);
+    setEditText("");
   };
 
   return (
@@ -45,7 +64,37 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
           ) : (
             posts.map((p, i) => (
               <div key={i} className="post-item">
-                <p>{p}</p>
+                {editingIndex === i ? (
+                  <>
+                    <textarea
+                      className="post-input"
+                      rows={3}
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                    />
+                    <button className="add-post-btn" onClick={() => saveEdit(i)}>
+                      Save
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <p>{p}</p>
+                    <div className="post-buttons">
+                      <button
+                        className="edit-post-btn"
+                        onClick={() => startEditing(i)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="delete-post-btn"
+                        onClick={() => handleDelete(i)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             ))
           )}
