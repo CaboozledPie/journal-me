@@ -6,3 +6,10 @@ db.sqlite3
 # Environments
 venv/
 .env
+front-end-old/
+node_modules/
+dist/
+.vite/
+.cache/
+.env.local
+.DS_Store
