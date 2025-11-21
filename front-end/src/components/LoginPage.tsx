@@ -5,6 +5,20 @@ import "./LoginPage.css";
 interface LoginPageProps {
   onLogin: () => void;
 }
+const url="http://ec2-35-88-153-74.us-west-2.compute.amazonaws.com:8000/api/";
+// ========== ADD THIS ==========
+(window as any).ping = function () {
+  fetch(`${url}ping/`)
+    .then((res) => res.json())
+    .then((data) => {
+      console.log("PING SUCCESS:", data);
+      alert(JSON.stringify(data));
+    })
+    .catch((err) => {
+      console.error("PING ERROR:", err);
+    });
+};
+// ==============================
 
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   return (
@@ -20,9 +34,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
             onSuccess={(credentialResponse) => {
               const idToken = credentialResponse.credential;
               console.log("✅ Google ID Token:", idToken);
-
+              console.log("test1");
               // Send the token to backend for verification
-              fetch("http://127.0.0.1:5001/auth/google", {
+              fetch(`${url}auth/google/`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ token: idToken }),
@@ -33,8 +47,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
 
                   //=================================
                   //this part for check if the backend give me the permition to login
-                  if (data.success) {
+                  if (data.access) {
                     onLogin(); // redirect to homepage on success
+                    console.log("成功了")
                   } else {
                     alert("Google token verification failed!");
                   }
@@ -55,5 +70,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
     </div>
   );
 };
+
+
 
 export default LoginPage;
