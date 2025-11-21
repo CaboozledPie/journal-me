@@ -1,15 +1,25 @@
 let accessToken = null;
+const API_URL = "http://ec2-35-88-153-74.us-west-2.compute.amazonaws.com:8000/api/";
 
 function handleCredentialResponse(response) {
     const token = response.credential; // Google ID token
 
     // Send it to your Django backend for verification
-    fetch("http://127.0.0.1:8000/api/auth/google/", {
+    fetch(`${API_URL}auth/google/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token }),
+        body: JSON.stringify({token: token}),
     })
-        .then((res) => res.json())
+        .then((res) => {
+            if (!res.ok) {
+                // Parse the error response body
+                return res.json().then(err => {
+                    console.error("Backend error response:", err);
+                    throw new Error(err.detail || JSON.stringify(err)); // Assuming 'detail' or general JSON error
+                });
+            }
+            return res.json();
+        })
         .then((data) => {
             console.log("Backend response:", data);
             accessToken = data.access // change to localStorage later!
@@ -18,9 +28,16 @@ function handleCredentialResponse(response) {
         .catch((err) => console.error("Error:", err));
 };
 
+window.ping = function() {
+    fetch(`${API_URL}ping/`, {})
+        .then((res) => res.json())
+        .then((data) => alert(JSON.stringify(data)))
+        .catch((err) => console.error(err));
+}
+
 window.protectedView = function() {
     console.log(accessToken);
-    fetch("http://127.0.0.1:8000/api/protected/", {
+    fetch(`${API_URL}protected/`, {
         headers: {
             "Authorization": `Bearer ${accessToken}`,
         },
