@@ -33,17 +33,22 @@
   width: 100vw;
   height: 100vh;
   background: linear-gradient(135deg, var(--bg-light), var(--bg-light-2));
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
+
 
 .home-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 40px;
+  padding: 20px 40px; 
+  position: sticky;
+  top: 0;
+  z-index: 10;
   background: var(--pastel-blue);
   color: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.10);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
 .home-title {
@@ -101,6 +106,9 @@
   border-radius: 14px;
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
   transition: 0.2s ease;
+  position: sticky;            
+  bottom: 0; 
+  flex-shrink: 0; 
 }
 
 .post-creator h2 {
@@ -151,22 +159,24 @@
 /* --------------------------------------- */
 
 .posts-list {
-  display: flex;
+  display: block;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
   width: 100%;
   max-width: 500px;
+  margin-top: 20px;
+  gap: 12px;
 }
 
 .post-item {
+
   background: var(--card-bg);
   color: var(--text-strong);
   width: 100%;
   padding: 15px;
   border-radius: 12px;
   border-left: 5px solid var(--pastel-blue);
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.07);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.07);
 }
 
 .post-item p {
@@ -233,3 +243,38 @@
 p{
   color: var(--text-strong);
 }
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* full page */
+}
+
+.posts-container {
+  flex: 1;                    /* takes rest of the page */
+  overflow-y: auto;           /* scrolls only this part */
+  display: flex;
+  flex-direction: column;     /* newest at top */
+  gap: 16px;
+  padding: 16px;
+}
+
+.home-main {
+  flex: 1;                  /* take remaining space below header */
+  overflow-y: auto;         /* enable vertical scrolling */
+  display: flex;
+  flex-direction: column;   /* stack post creator + posts */
+  align-items: center;      /* center horizontally */
+  gap: 20px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.posts-scroll {
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
