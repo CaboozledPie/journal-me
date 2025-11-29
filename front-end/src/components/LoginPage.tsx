@@ -7,17 +7,17 @@ interface LoginPageProps {
 }
 const url="http://ec2-35-88-153-74.us-west-2.compute.amazonaws.com:8000/api/";
 // ========== ADD THIS ==========
-(window as any).ping = function () {
-  fetch(`${url}ping/`)
-    .then((res) => res.json())
-    .then((data) => {
-      console.log("PING SUCCESS:", data);
-      alert(JSON.stringify(data));
-    })
-    .catch((err) => {
-      console.error("PING ERROR:", err);
-    });
-};
+// (window as any).ping = function () {
+//   fetch(`${url}ping/`)
+//     .then((res) => res.json())
+//     .then((data) => {
+//       console.log("PING SUCCESS:", data);
+//       alert(JSON.stringify(data));
+//     })
+//     .catch((err) => {
+//       console.error("PING ERROR:", err);
+//     });
+// };
 // ==============================
 
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
