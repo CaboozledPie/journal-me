@@ -17,7 +17,7 @@ function App() {
 
   return (
     // ⚠️ 这里替换成你自己的 Client ID
-    <GoogleOAuthProvider clientId="7325692165-ae7efhkiajoqgqvi354eu76o9s7lerfh.apps.googleusercontent.com">
+    <GoogleOAuthProvider clientId="219694033881-4od4hi84uakag1cf7fuucm6s6u8q7ef9.apps.googleusercontent.com">
       {isLoggedIn ? (
         <HomePage onLogout={handleLogout} />
       ) : (
