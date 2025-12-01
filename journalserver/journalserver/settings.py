@@ -47,9 +47,6 @@ INSTALLED_APPS = [
     # cors
     'corsheaders',
 
-    # Django REST Framework testing tools (for API tests)
-    'rest_framework', 
-
     # tells Django the journal app exists
     'journal',
 ]
