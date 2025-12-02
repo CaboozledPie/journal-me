@@ -48,7 +48,14 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                   //=================================
                   //this part for check if the backend give me the permition to login
                   if (data.access) {
-                    onLogin(); // redirect to homepage on success
+                     // Save tokens
+                      localStorage.setItem("access", data.access);
+                      localStorage.setItem("refresh", data.refresh);
+
+                      console.log("Access token saved:", data.access);
+                      console.log("Refresh token saved:", data.refresh);
+
+                      onLogin(); // redirect to homepage
                     console.log("成功了")
                   } else {
                     alert("Google token verification failed!");
