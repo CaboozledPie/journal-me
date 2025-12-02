@@ -7,17 +7,17 @@ interface LoginPageProps {
 }
 const url="http://ec2-35-88-153-74.us-west-2.compute.amazonaws.com:8000/api/";
 // ========== ADD THIS ==========
-(window as any).ping = function () {
-  fetch(`${url}ping/`)
-    .then((res) => res.json())
-    .then((data) => {
-      console.log("PING SUCCESS:", data);
-      alert(JSON.stringify(data));
-    })
-    .catch((err) => {
-      console.error("PING ERROR:", err);
-    });
-};
+// (window as any).ping = function () {
+//   fetch(`${url}ping/`)
+//     .then((res) => res.json())
+//     .then((data) => {
+//       console.log("PING SUCCESS:", data);
+//       alert(JSON.stringify(data));
+//     })
+//     .catch((err) => {
+//       console.error("PING ERROR:", err);
+//     });
+// };
 // ==============================
 
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
@@ -48,7 +48,14 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                   //=================================
                   //this part for check if the backend give me the permition to login
                   if (data.access) {
-                    onLogin(); // redirect to homepage on success
+                     // Save tokens
+                      localStorage.setItem("access", data.access);
+                      localStorage.setItem("refresh", data.refresh);
+
+                      console.log("Access token saved:", data.access);
+                      console.log("Refresh token saved:", data.refresh);
+
+                      onLogin(); // redirect to homepage
                     console.log("成功了")
                   } else {
                     alert("Google token verification failed!");
