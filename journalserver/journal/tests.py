@@ -3,13 +3,19 @@ from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
+from django.contrib.auth import get_user_model
 from .models import JournalEntry
 
 class JournalEntryModelTest(TestCase):
 
+    def setUp(self):
+        User = get_user_model()
+        self.user = User.objects.create_user(username="tester", password="password123")
+
     # Create a journal entry object 
     def test_create_journal_entry(self):
         entry = JournalEntry.objects.create(
+            user=self.user,
             title="Test Entry",
             content="Testing TDD setup."
         )
@@ -32,8 +38,8 @@ class JournalEntryAPITest(APITestCase):
     def test_get_entries_returns_data(self):
         
         # Create sample entries in the database
-        JournalEntry.objects.create(title="Entry 1", content="First test entry")
-        JournalEntry.objects.create(title="Entry 2", content="Second test entry")
+        JournalEntry.objects.create(user=self.user, title="Entry 1", content="First test entry")
+        JournalEntry.objects.create(user=self.user, title="Entry 2", content="Second test entry")
 
         # Send GET request to the API endpoint
         url = reverse('entry-list')
@@ -67,8 +73,26 @@ class JournalEntryAPITest(APITestCase):
         self.assertEqual(entry.content, "Testing POST request through API")
 
 
-# GET request for entries requires authentication
+    # Verify users cannot see other users' entries
+    def test_entries_are_user_specific(self):
+        User = get_user_model()
+        other_user = User.objects.create_user(username="other", password="pass123", email="other@email.com")
+
+        # Create one entry for self.user and one for other_user
+        JournalEntry.objects.create(user=self.user, title="Mine", content="Mine content")
+        JournalEntry.objects.create(user=other_user, title="Other", content="Other content")
+
+        url = reverse('entry-list')
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["entries"]), 1)
+        self.assertEqual(response.data["entries"][0]["title"], "Mine")
+
+
 class JournalEntryAuthTest(APITestCase):
+
+    # GET request for entries requires authentication
     def test_entries_requires_auth(self):
         url = reverse('entry-list')
 
