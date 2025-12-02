@@ -4,7 +4,7 @@ const API_URL = "http://ec2-35-88-153-74.us-west-2.compute.amazonaws.com:8000/ap
 function handleCredentialResponse(response) {
     const token = response.credential; // Google ID token
 
-    // Send it to your Django backend for verification
+    // Send it to yodur Django backend for verification
     fetch(`${API_URL}auth/google/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -27,6 +27,58 @@ function handleCredentialResponse(response) {
         })
         .catch((err) => console.error("Error:", err));
 };
+
+window.postJournalEntry = function() {
+    fetch(`${API_URL}journal/entries/`, {
+        method: 'POST',
+        headers: {
+            "Authorization": `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            title: "journal test!",
+            content: "today i tested ...",
+        }),
+    })
+        .then((res) => {
+            if (!res.ok) {
+                // Parse the error response body
+                return res.json().then(err => {
+                    console.error("Backend error response:", err);
+                    throw new Error(err.detail || JSON.stringify(err)); // Assuming 'detail' or general JSON error
+                });
+            }
+            return res.json();
+        })
+        .then((data) => {
+            console.log("Backend response:", data);
+        })
+        .catch((err) => console.error("Error:", err));
+}
+
+window.getJournalEntry = function() {
+    fetch(`${API_URL}journal/entries/`, {
+        method: 'GET',
+        headers: {
+            "Authorization": `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+        },
+    })
+        .then((res) => {
+            if (!res.ok) {
+                // Parse the error response body
+                return res.json().then(err => {
+                    console.error("Backend error response:", err);
+                    throw new Error(err.detail || JSON.stringify(err)); // Assuming 'detail' or general JSON error
+                });
+            }
+            return res.json();
+        })
+        .then((data) => {
+            console.log("Backend response:", data);
+        })
+        .catch((err) => console.error("Error:", err));
+}
 
 window.ping = function() {
     fetch(`${API_URL}ping/`, {})
