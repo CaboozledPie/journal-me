@@ -7,6 +7,10 @@ from django.contrib.auth.models import User
 
 # Create your views here.
 @api_view(['GET'])
+def ping(request):
+    return Response({"message": "pong!"})
+
+@api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def protected_view(request):
