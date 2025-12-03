@@ -24,7 +24,16 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
   useEffect(() => {
     const fetchEntries = async () => {
       try {
-        const res = await fetch(API_URL);
+        // const res = await fetch(API_URL);
+        const accessToken = localStorage.getItem("access");
+
+        const res = await fetch(API_URL, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${accessToken}`
+          }
+        });
         const data = await res.json();
 
         setPosts(data.entries || []);
@@ -37,20 +46,54 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
   }, []);
 
   // Add post (Frontend-only, no backend call)
-  const handleAdd = () => {
+//   const handleAdd = () => {
+//   if (!text.trim()) return;
+
+//   const newPost = {
+//     id: Date.now(), // temporary unique ID
+//     title: "Untitled",
+//     content: text,
+//   };
+
+//   // Prepend so it appears on top
+//   setPosts([newPost, ...posts]);
+
+//   setText("");
+// };
+const handleAdd = async () => {
   if (!text.trim()) return;
 
-  const newPost = {
-    id: Date.now(), // temporary unique ID
-    title: "Untitled",
-    content: text,
-  };
+  const accessToken = localStorage.getItem("access");
 
-  // Prepend so it appears on top
-  setPosts([newPost, ...posts]);
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${accessToken}`
+      },
+      body: JSON.stringify({
+        title: "Untitled",
+        content: text
+      })
+    });
 
-  setText("");
+    const data = await res.json();
+    console.log("POST RESULT:", data);
+
+    if (res.ok) {
+      // Add new post to UI
+      setPosts([data, ...posts]);
+      setText("");
+    } else {
+      console.error("POST FAILED:", data);
+    }
+
+  } catch (err) {
+    console.error("Network POST error:", err);
+  }
 };
+
 
 
   // Delete post (Frontend-only)
