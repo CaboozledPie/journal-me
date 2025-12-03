@@ -128,6 +128,18 @@ window.protectedView = function() {
         .catch((err) => console.error(err));
 };
 
+window.getProfile = function() {
+    console.log(accessToken);
+    fetch(`${API_URL}profile/`, {
+        headers: {
+            "Authorization": `Bearer ${accessToken}`,
+        }
+    })
+        .then((res) => res.json())
+        .then((data) => alert(JSON.stringify(data)))
+        .catch((err) => console.error(err));
+}
+
 window.onload = function() {
   google.accounts.id.initialize({
     client_id: "219694033881-4od4hi84uakag1cf7fuucm6s6u8q7ef9.apps.googleusercontent.com",
