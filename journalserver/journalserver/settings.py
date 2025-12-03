@@ -25,7 +25,10 @@ SECRET_KEY = 'django-insecure-73cv=r#w+f-ng3+k!novx=p5g*ow5^5pq#!u=py!s8n_4v!er3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+"ec2-35-88-153-74.us-west-2.compute.amazonaws.com",
+"*"
+]
 
 
 # Application definition
@@ -43,12 +46,11 @@ INSTALLED_APPS = [
     # django apps
     'api',
     'authapi',
+    'journal',
     
     # cors
     'corsheaders',
 
-    # tells Django the journal app exists
-    'journal',
 ]
 
 MIDDLEWARE = [
