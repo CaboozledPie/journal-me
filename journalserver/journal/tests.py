@@ -1,9 +1,9 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
 from django.urls import reverse
-from django.contrib.auth import get_user_model
 from .models import JournalEntry
 
 class JournalEntryModelTest(TestCase):
@@ -31,12 +31,14 @@ class JournalEntryAPITest(APITestCase):
             username="tester", 
             password="password123"
         )
-        # Log in the user (session auth)
-        self.client.login(username="tester", password="password123")
+        # Generate JWT token for this user
+        refresh = RefreshToken.for_user(self.user)
+        self.token = str(refresh.access_token)
+        # Set Authorization header for all requests
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.token}')
 
     # API Entries endpoint returns real database entry data
     def test_get_entries_returns_data(self):
-        
         # Create sample entries in the database
         JournalEntry.objects.create(user=self.user, title="Entry 1", content="First test entry")
         JournalEntry.objects.create(user=self.user, title="Entry 2", content="Second test entry")
@@ -52,12 +54,8 @@ class JournalEntryAPITest(APITestCase):
 
     # POST Endpoint allows frontend to create new entries
     def test_create_entry_via_post(self):
-
         url = reverse('entry-list')
-        data = {
-            "title": "New Post",
-            "content": "Testing POST request through API"
-        }
+        data = {"title": "New Post", "content": "Testing POST request through API"}
 
         response = self.client.post(url, data, format='json')
 
@@ -72,11 +70,12 @@ class JournalEntryAPITest(APITestCase):
         self.assertEqual(entry.title, "New Post")
         self.assertEqual(entry.content, "Testing POST request through API")
 
-
     # Verify users cannot see other users' entries
     def test_entries_are_user_specific(self):
         User = get_user_model()
-        other_user = User.objects.create_user(username="other", password="pass123", email="other@email.com")
+        other_user = User.objects.create_user(
+            username="other", password="pass123", email="other@email.com"
+        )
 
         # Create one entry for self.user and one for other_user
         JournalEntry.objects.create(user=self.user, title="Mine", content="Mine content")
@@ -88,7 +87,42 @@ class JournalEntryAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data["entries"]), 1)
         self.assertEqual(response.data["entries"][0]["title"], "Mine")
+    
+    def test_delete_own_entry(self):
+        # Create an entry owned by the logged-in user
+        entry = JournalEntry.objects.create(
+            user=self.user,
+            title="Delete Me",
+            content="To be removed"
+        )
 
+        url = reverse('entry-delete', args=[entry.id])
+        response = self.client.post(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(JournalEntry.objects.count(), 0)
+
+    def test_cannot_delete_other_users_entry(self):
+        User = get_user_model()
+        other_user = User.objects.create_user(
+            username="other", password="pass123", email="other@test.com"
+        )
+
+        # Create entry belonging to *other* user
+        entry = JournalEntry.objects.create(
+            user=other_user,
+            title="Not Yours",
+            content="Stay away"
+        )
+
+        url = reverse('entry-delete', args=[entry.id])
+        response = self.client.post(url, format='json')
+
+        # Should return 404 (not found OR not yours)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        # Confirm entry still exists
+        self.assertEqual(JournalEntry.objects.count(), 1)
 
 class JournalEntryAuthTest(APITestCase):
 
@@ -98,4 +132,4 @@ class JournalEntryAuthTest(APITestCase):
 
         # no token provided
         response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

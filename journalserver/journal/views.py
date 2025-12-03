@@ -38,3 +38,19 @@ def entry_list(request):
             {"id": entry.id, "title": entry.title, "content": entry.content},
             status=status.HTTP_201_CREATED
         )
+
+@csrf_exempt
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def delete_entry(request, pk):
+    
+    user = request.user
+
+    try:
+        entry = JournalEntry.objects.get(pk=pk, user=user)
+    except JournalEntry.DoesNotExist:
+        return Response({"error": "Not found or not yours"}, status=404)
+
+    entry.delete()
+    return Response({"success": True})
