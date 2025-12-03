@@ -1,7 +1,11 @@
-from django.shortcuts import render
+from datetime import timedelta
 
+from django.utils import timezone
+from django.contrib.auth import get_user_model
+from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import JsonResponse
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -10,6 +14,25 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework import status
 from .models import JournalEntry
+
+User = get_user_model()
+
+# handles streak logic
+def update_streak(profile):
+    today = timezone.localdate()
+
+    if profile.last_entry_date == today: # same day entry
+        return
+
+    if profile.last_entry_date == today - timedelta(days=1) or profile.streak == 0: # update streak
+        profile.streak += 1
+
+    # Update longest streak
+    profile.longest_streak = max(profile.longest_streak, profile.streak)
+
+    # Update last entry
+    profile.last_entry_date = today
+    profile.save()
 
 def test_view(request):
     return HttpResponse("Journal app is working!")
@@ -33,8 +56,16 @@ def entry_list(request):
             return Response({"error": "Missing title or content"}, status=status.HTTP_400_BAD_REQUEST)
 
         entry = JournalEntry.objects.create(user=user, title=title, content=content)
+
+        # streak
+        try:
+            profile = User.objects.get(email=user)
+        except:
+            return Response({"error": "failed to find profile"}, status=404)
+        update_streak(profile)
+        
         return Response(
-            {"id": entry.id, "title": entry.title, "content": entry.content},
+            {"id": entry.id, "title": entry.title, "content": entry.content, "streak": profile.streak},
             status=status.HTTP_201_CREATED
         )
 

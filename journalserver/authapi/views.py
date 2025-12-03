@@ -10,7 +10,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 User = get_user_model()
 
 # Create your views here.
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def google_auth(request):
