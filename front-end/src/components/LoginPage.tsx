@@ -5,7 +5,7 @@ import "./LoginPage.css";
 interface LoginPageProps {
   onLogin: () => void;
 }
-const url="http://ec2-35-88-153-74.us-west-2.compute.amazonaws.com:8000/api/";
+const url = "http://ec2-35-88-153-74.us-west-2.compute.amazonaws.com:8000/api/";
 // ========== ADD THIS ==========
 // (window as any).ping = function () {
 //   fetch(`${url}ping/`)
@@ -44,24 +44,21 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                 .then((res) => res.json())
                 .then((data) => {
                   console.log("Backend verification result:", data);
-
-                  //=================================
                   //this part for check if the backend give me the permition to login
                   if (data.access) {
-                     // Save tokens
-                      localStorage.setItem("access", data.access);
-                      localStorage.setItem("refresh", data.refresh);
-
-                      console.log("Access token saved:", data.access);
-                      console.log("Refresh token saved:", data.refresh);
-
-                      onLogin(); // redirect to homepage
-                    console.log("成功了")
+                    // Save access_token to localStorage (using the access token returned from backend)
+                    localStorage.setItem("access_token", data.access);
+                    // Optional: save refresh token for future access token refresh
+                    if (data.refresh) {
+                      localStorage.setItem("refresh_token", data.refresh);
+                    }
+                    console.log("Access token saved to localStorage");
+                    onLogin(); // redirect to homepage on success
+                    console.log("Login successful");
                   } else {
                     alert("Google token verification failed!");
                   }
                 })
-                 //=================================
                 .catch((err) => {
                   console.error("Network error:", err);
                   alert("Network error, please try again.");
@@ -77,7 +74,5 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
     </div>
   );
 };
-
-
 
 export default LoginPage;

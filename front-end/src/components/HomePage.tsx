@@ -24,18 +24,32 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
   useEffect(() => {
     const fetchEntries = async () => {
       try {
-        // const res = await fetch(API_URL);
-        const accessToken = localStorage.getItem("access");
+        const accessToken = localStorage.getItem("access_token");
+
+        if (!accessToken) {
+          console.error("Access token not found");
+          onLogout();
+          return;
+        }
 
         const res = await fetch(API_URL, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${accessToken}`
-          }
+            Authorization: `Bearer ${accessToken}`,
+          },
         });
-        const data = await res.json();
 
+        if (!res.ok) {
+          if (res.status === 401 || res.status === 403) {
+            console.error("Authentication failed, clearing token");
+            localStorage.removeItem("access_token");
+            onLogout();
+          }
+          throw new Error(`Failed to fetch data: ${res.status}`);
+        }
+
+        const data = await res.json();
         setPosts(data.entries || []);
       } catch (error) {
         console.error("Error fetching posts:", error);
@@ -43,58 +57,74 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
     };
 
     fetchEntries();
-  }, []);
+  }, [onLogout]);
 
   // Add post (Frontend-only, no backend call)
-//   const handleAdd = () => {
-//   if (!text.trim()) return;
+  const handleAdd = async () => {
+    if (!text.trim()) return;
 
-//   const newPost = {
-//     id: Date.now(), // temporary unique ID
-//     title: "Untitled",
-//     content: text,
-//   };
+    const newPost = {
+      title: "Untitled",
+      content: text,
+    };
 
-//   // Prepend so it appears on top
-//   setPosts([newPost, ...posts]);
+    try {
+      // Get the access token from localStorage (assuming it was stored after Google login)
+      const accessToken = localStorage.getItem("access_token");
 
-//   setText("");
-// };
-const handleAdd = async () => {
-  if (!text.trim()) return;
+      if (!accessToken) {
+        alert("Access token not found, please log in again");
+        onLogout();
+        return;
+      }
 
-  const accessToken = localStorage.getItem("access");
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(newPost),
+      });
 
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${accessToken}`
-      },
-      body: JSON.stringify({
-        title: "Untitled",
-        content: text
-      })
-    });
+      if (!res.ok) {
+        // Get detailed error information
+        const errorData = await res
+          .json()
+          .catch(() => ({ detail: "Unknown error" }));
+        console.error("Error response:", res.status, errorData);
 
-    const data = await res.json();
-    console.log("POST RESULT:", data);
+        if (res.status === 403) {
+          alert(
+            `Insufficient permissions (403): ${
+              errorData.detail || "Access denied, please check your permissions"
+            }`
+          );
+        } else if (res.status === 401) {
+          alert("Authentication failed, please log in again");
+          localStorage.removeItem("access_token");
+          onLogout();
+        } else {
+          alert(`Failed to create post: ${errorData.detail || res.statusText}`);
+        }
+        return;
+      }
 
-    if (res.ok) {
-      // Add new post to UI
+      const data = await res.json();
+
+      // Prepend the newly created post with the ID from backend
       setPosts([data, ...posts]);
+
       setText("");
-    } else {
-      console.error("POST FAILED:", data);
+    } catch (error) {
+      console.error("Error creating post:", error);
+      alert(
+        `Network error: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     }
-
-  } catch (err) {
-    console.error("Network POST error:", err);
-  }
-};
-
-
+  };
 
   // Delete post (Frontend-only)
   const handleDelete = (index: number) => {
@@ -119,62 +149,74 @@ const handleAdd = async () => {
 
   return (
     <div className="home-container">
-  <header className="home-header">
-    <h1 className="home-title">Journal Posts</h1>
-    <button className="logout-btn" onClick={onLogout}>Log Out</button>
-  </header>
+      <header className="home-header">
+        <h1 className="home-title">Journal Posts</h1>
+        <button className="logout-btn" onClick={onLogout}>
+          Log Out
+        </button>
+      </header>
 
-  <main className="home-main">
-    <div className="post-creator">
-      <h2>Create a New Post</h2>
-      <textarea
-        className="post-input"
-        rows={3}
-        placeholder="Write your thoughts..."
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-      />
-      <button className="add-post-btn" onClick={handleAdd}>Add Post</button>
+      <main className="home-main">
+        <div className="post-creator">
+          <h2>Create a New Post</h2>
+          <textarea
+            className="post-input"
+            rows={3}
+            placeholder="Write your thoughts..."
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+          />
+          <button className="add-post-btn" onClick={handleAdd}>
+            Add Post
+          </button>
+        </div>
+
+        <div className="posts-scroll">
+          {posts.length === 0 ? (
+            <p>No posts yet.</p>
+          ) : (
+            posts.map((p, i) => (
+              <div key={p.id} className="post-item">
+                {editingIndex === i ? (
+                  <>
+                    <textarea
+                      className="post-input"
+                      rows={3}
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                    />
+                    <button
+                      className="add-post-btn"
+                      onClick={() => saveEdit(i)}
+                    >
+                      Save
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <p>{p.content}</p>
+                    <div className="post-buttons">
+                      <button
+                        className="edit-post-btn"
+                        onClick={() => startEditing(i)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="delete-post-btn"
+                        onClick={() => handleDelete(i)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      </main>
     </div>
-
-    <div className="posts-scroll">
-      {posts.length === 0 ? (
-        <p>No posts yet.</p>
-      ) : (
-        posts.map((p, i) => (
-          <div key={p.id} className="post-item">
-            {editingIndex === i ? (
-              <>
-                <textarea
-                  className="post-input"
-                  rows={3}
-                  value={editText}
-                  onChange={(e) => setEditText(e.target.value)}
-                />
-                <button className="add-post-btn" onClick={() => saveEdit(i)}>
-                  Save
-                </button>
-              </>
-            ) : (
-              <>
-                <p>{p.content}</p>
-                <div className="post-buttons">
-                  <button className="edit-post-btn" onClick={() => startEditing(i)}>
-                    Edit
-                  </button>
-                  <button className="delete-post-btn" onClick={() => handleDelete(i)}>
-                    Delete
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        ))
-      )}
-    </div>
-  </main>
-</div>
-
   );
 };
 
