@@ -29,14 +29,17 @@ def google_auth(request):
         picture = idinfo.get("picture", "")
 
         user, created = User.objects.get_or_create(
-            google_sub = google_id,
+            email = email,
             defaults = {
+                "google_sub": google_id,
                 "username": email,
                 "name": name,
                 "picture": picture,
             }
         )
         if not created:
+            if user.google_sub is None:
+                user.google_sub = google_id
             user.email = email
             user.name = name
             user.picture = picture
