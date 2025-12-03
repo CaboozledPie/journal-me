@@ -69,6 +69,28 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
               alert("Google login failed, please try again.");
             }}
           />
+         {/* ====== 🚀 Test Login Button (Skip Google) ====== */}
+          <button
+            style={{
+              marginTop: "20px",
+              padding: "10px 20px",
+              fontSize: "16px",
+              cursor: "pointer",
+              backgroundColor: "#4CAF50",
+              color: "white",
+              border: "none",
+              borderRadius: "6px",
+            }}
+            onClick={() => {
+              console.log("🔧 Test Login Activated (Skipping Google)");
+              // Fake token for testing
+              localStorage.setItem("access_token", "TEST_TOKEN");
+              onLogin(); // redirect to homepage
+            }}
+          >
+            Test Login (Skip Google)
+          </button>
+           {/* ====== 🚀 Test Login Button (Skip Google) ====== */}
         </div>
       </div>
     </div>
