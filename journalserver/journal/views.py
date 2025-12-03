@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from django.db.models import Q
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django.shortcuts import render
@@ -46,7 +47,17 @@ def entry_list(request):
 
     if request.method == 'GET':
         entries = JournalEntry.objects.filter(user=user).values('id', 'title', 'content', 'created_at')
-        return Response({"entries": list(entries)})
+        
+        query = request.GET.get("query");
+        print("query: ", query)
+        if not query:
+            print("what the fuck")
+            return Response({"entries": list(entries)})
+        else:
+            entries = entries.filter(Q(title__icontains=query) |
+                Q(content__icontains=query)
+            )
+            return Response({"entries": list(entries)})
 
     elif request.method == 'POST':
         title = request.data.get('title')

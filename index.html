@@ -10,11 +10,15 @@
         <h1>journalme google auth test?</h1>
         <button onclick="window.ping()">test unauthenticated ping</button/>
         <button onclick="window.protectedView()">test auth login</button>
-        <button onclick="window.postJournalEntry()">test journal entry post</button>
-        <button onclick="window.getJournalEntry()">test journal entry get</button>
         <input type="text" id="entry-remove-id"></input> 
         <button onclick="window.deleteJournalEntry()">test journal entry delete</button>
         <button onclick="window.getProfile()">see profile details</button>
+        <div></div>
+        <h3>type in search bar to influence get button</h3>
+        <input type="text" id="entry-input"></input>
+        <button onclick="window.postJournalEntry()">test journal entry post</button>
+        <input type="text" id="entry-search"></input>
+        <button onclick="window.getJournalEntry()">test journal entry get</button>
         <!-- Google login button thing here -->
         <div id="google-login"><div>
     </body>

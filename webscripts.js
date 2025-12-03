@@ -1,4 +1,5 @@
 let accessToken = null;
+//const API_URL = "http://127.0.0.1:8000/api/";
 const API_URL = "http://ec2-35-88-153-74.us-west-2.compute.amazonaws.com:8000/api/";
 
 function handleCredentialResponse(response) {
@@ -29,6 +30,7 @@ function handleCredentialResponse(response) {
 };
 
 window.postJournalEntry = function() {
+    const entry_text = document.getElementById("entry-input").value;
     fetch(`${API_URL}journal/entries/`, {
         method: 'POST',
         headers: {
@@ -37,7 +39,7 @@ window.postJournalEntry = function() {
         },
         body: JSON.stringify({
             title: "journal test!",
-            content: "today i tested ...",
+            content: entry_text,
         }),
     })
         .then((res) => {
@@ -57,7 +59,13 @@ window.postJournalEntry = function() {
 }
 
 window.getJournalEntry = function() {
-    fetch(`${API_URL}journal/entries/`, {
+    const search_query = document.getElementById("entry-search").value;
+    var get_url = `${API_URL}journal/entries/`;
+    if (search_query !== "") {
+        get_url += `?query=${search_query}`;
+    }
+    console.log(`fetching at ${get_url}`);
+    fetch(get_url, {
         method: 'GET',
         headers: {
             "Authorization": `Bearer ${accessToken}`,
