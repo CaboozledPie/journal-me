@@ -7,3 +7,6 @@ class JournalUser(AbstractUser):
     picture = models.URLField(blank=True, null=True)
     email = models.EmailField(unique=True)
     name = models.CharField()
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = []
