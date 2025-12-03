@@ -65,6 +65,59 @@ class JournalEntryAPITest(APITestCase):
         entry = JournalEntry.objects.first()
         self.assertEqual(entry.title, "New Post")
         self.assertEqual(entry.content, "Testing POST request through API")
+    # Verify users cannot see other users' entries
+    def test_entries_are_user_specific(self):
+        User = get_user_model()
+        other_user = User.objects.create_user(
+            username="other", password="pass123", email="other@email.com"
+        )
+
+        # Create one entry for self.user and one for other_user
+        JournalEntry.objects.create(user=self.user, title="Mine", content="Mine content")
+        JournalEntry.objects.create(user=other_user, title="Other", content="Other content")
+
+        url = reverse('entry-list')
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["entries"]), 1)
+        self.assertEqual(response.data["entries"][0]["title"], "Mine")
+    
+    def test_delete_own_entry(self):
+        # Create an entry owned by the logged-in user
+        entry = JournalEntry.objects.create(
+            user=self.user,
+            title="Delete Me",
+            content="To be removed"
+        )
+
+        url = reverse('entry-delete', args=[entry.id])
+        response = self.client.post(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(JournalEntry.objects.count(), 0)
+
+    def test_cannot_delete_other_users_entry(self):
+        User = get_user_model()
+        other_user = User.objects.create_user(
+            username="other", password="pass123", email="other@test.com"
+        )
+
+        # Create entry belonging to *other* user
+        entry = JournalEntry.objects.create(
+            user=other_user,
+            title="Not Yours",
+            content="Stay away"
+        )
+
+        url = reverse('entry-delete', args=[entry.id])
+        response = self.client.post(url, format='json')
+
+        # Should return 404 (not found OR not yours)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        # Confirm entry still exists
+        self.assertEqual(JournalEntry.objects.count(), 1)
 
 
 # GET request for entries requires authentication

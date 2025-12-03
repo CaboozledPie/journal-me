@@ -80,6 +80,35 @@ window.getJournalEntry = function() {
         .catch((err) => console.error("Error:", err));
 }
 
+window.deleteJournalEntry = function() {
+    const delete_id = document.getElementById("entry-remove-id").value;
+
+    fetch(`${API_URL}journal/delete-entry/`, {
+        method: 'POST',
+        headers: {
+            "Authorization": `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            "entry-id": delete_id,
+        }),
+    })
+        .then((res) => {
+            if (!res.ok) {
+                // Parse the error response body
+                return res.json().then(err => {
+                    console.error("Backend error response:", err);
+                    throw new Error(err.detail || JSON.stringify(err)); // Assuming 'detail' or general JSON error
+                });
+            }
+            return res.json();
+        })
+        .then((data) => {
+            console.log("Backend response:", data);
+        })
+        .catch((err) => console.error("Error:", err));
+}
+
 window.ping = function() {
     fetch(`${API_URL}ping/`, {})
         .then((res) => res.json())
