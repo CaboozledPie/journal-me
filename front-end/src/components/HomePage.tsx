@@ -24,6 +24,7 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
   const [image, setImage] = useState<File | null>(null);
+  const [streak, setStreak] = useState<number>(0);
 
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editText, setEditText] = useState("");
@@ -44,12 +45,32 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
 
         const data = await res.json();
         setPosts(data.entries || []);
+      
+        if (data.streak !== undefined) {
+          setStreak(data.streak);
+        }
       } catch (error) {
         console.error("Error fetching posts:", error);
       }
     };
 
+    const fetchStreak = async () => {
+      const accessToken = localStorage.getItem("access_token");
+      if (!accessToken) return;
+
+      try {
+        const res = await fetch(`${API_URL}profile/`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        const data = await res.json();
+        setStreak(data.streak || 0);
+      } catch (err) {
+        console.error("Error fetching streak:", err);
+      }
+    };
+
     fetchEntries();
+    fetchStreak();
   }, [onLogout]);
 
   // ==============add post function===================
@@ -86,6 +107,11 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
 
       // Add new post to UI
       setPosts([data, ...posts]);
+
+      // Update streak
+      if (data.streak !== undefined) {
+        setStreak(data.streak);
+      }
 
       // Reset fields
       setTitle("");
@@ -189,6 +215,7 @@ const saveEdit = (index: number) => {
   "http://ec2-35-88-153-74.us-west-2.compute.amazonaws.com:8000/media/";
 
   const name = localStorage.getItem("name");
+  const profileImage = localStorage.getItem("profile_picture") || "";
 
   return (
     <div className="home-container">
@@ -208,6 +235,14 @@ const saveEdit = (index: number) => {
           }}
         > 
           <h2> Hi {name}!</h2>
+          {profileImage && (
+            <img
+              src={profileImage}
+              alt="Profile"
+              className="profile-image"
+            />
+          )}
+          <p>🔥 Current streak: {streak} day{streak !== 1 ? "s" : ""}</p>
           <h2>Create a New Post</h2>
 
           <label htmlFor="title">Title:</label>

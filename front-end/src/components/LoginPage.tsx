@@ -45,6 +45,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                     console.log("成功了")
                     localStorage.setItem("access_token", data.access);
                     localStorage.setItem("name", data.name);
+                    localStorage.setItem("profile_picture", data.picture);
                     console.log(data.access);
                   } else {
                     alert("Google token verification failed!");
