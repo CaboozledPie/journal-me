@@ -131,6 +131,21 @@
   color: var(--pastel-blue);
 }
 
+.title-input {
+  width: 100%;
+  min-height: 30px;
+  font-size: 1rem;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--pastel-teal);
+  background: white;
+  color: var(--pastel-blue);
+}
+
+label{
+  color: var(--pastel-blue);
+}
+
 .post-input::placeholder {
   color: #94a3a8;
 }

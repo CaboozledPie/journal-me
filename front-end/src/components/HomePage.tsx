@@ -12,21 +12,29 @@ interface Post {
 }
 
 const API_URL =
-  "http://ec2-35-88-153-74.us-west-2.compute.amazonaws.com:8000/api/journal/entries/";
+  "http://ec2-35-88-153-74.us-west-2.compute.amazonaws.com:8000/api/";
 
 const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
-  const [text, setText] = useState("");
   const [posts, setPosts] = useState<Post[]>([]);
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [editText, setEditText] = useState("");
 
-  // --- Fetch entries from backend (GET only) ---
+  // Post input state
+  const [title, setTitle] = useState("");
+  const [text, setText] = useState("");
+  const [image, setImage] = useState<File | null>(null);
+
+  // Fetch entries on mount
   useEffect(() => {
+    const accessToken = localStorage.getItem("access_token");
+
     const fetchEntries = async () => {
       try {
-        const res = await fetch(API_URL);
-        const data = await res.json();
+        const res = await fetch(`${API_URL}journal/entries/`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
 
+        const data = await res.json();
         setPosts(data.entries || []);
       } catch (error) {
         console.error("Error fetching posts:", error);
@@ -36,102 +44,135 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
     fetchEntries();
   }, []);
 
-  // Add post (Frontend-only, no backend call)
-  const handleAdd = () => {
-  if (!text.trim()) return;
+  // Add post
+  const handleAdd = async () => {
+    if (!text.trim() || !title.trim()) return;
 
-  const newPost = {
-    id: Date.now(), // temporary unique ID
-    title: "Untitled",
-    content: text,
+    const accessToken = localStorage.getItem("access_token");
+    if (!accessToken) {
+      console.error("Not signed in");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("content", text);
+    if (image) formData.append("image", image);
+
+    try {
+      const res = await fetch(`${API_URL}journal/entries/`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        console.error("Backend error:", err);
+        throw new Error(err.detail || "Error creating post");
+      }
+
+      const data = await res.json();
+
+      // Add new post to UI
+      setPosts([data, ...posts]);
+
+      // Reset fields
+      setTitle("");
+      setText("");
+      setImage(null);
+    } catch (err) {
+      console.error("Error:", err);
+    }
   };
 
-  // Prepend so it appears on top
-  setPosts([newPost, ...posts]);
-
-  setText("");
-};
-
-
-  // Delete post (Frontend-only)
+  // Delete post (frontend only)
   const handleDelete = (index: number) => {
     setPosts(posts.filter((_, i) => i !== index));
   };
 
-  // Start editing
-  const startEditing = (index: number) => {
-    setEditingIndex(index);
-    setEditText(posts[index].content);
-  };
-
-  // Save edited post (Frontend-only)
-  const saveEdit = (index: number) => {
-    const updated = [...posts];
-    updated[index].content = editText;
-
-    setPosts(updated);
-    setEditingIndex(null);
-    setEditText("");
-  };
-
   return (
     <div className="home-container">
-  <header className="home-header">
-    <h1 className="home-title">Journal Posts</h1>
-    <button className="logout-btn" onClick={onLogout}>Log Out</button>
-  </header>
+      <header className="home-header">
+        <h1 className="home-title">Journal Posts</h1>
+        <button className="logout-btn" onClick={onLogout}>
+          Log Out
+        </button>
+      </header>
 
-  <main className="home-main">
-    <div className="post-creator">
-      <h2>Create a New Post</h2>
-      <textarea
-        className="post-input"
-        rows={3}
-        placeholder="Write your thoughts..."
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-      />
-      <button className="add-post-btn" onClick={handleAdd}>Add Post</button>
-    </div>
+      <main className="home-main">
+        <form
+          className="post-creator"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleAdd();
+          }}
+        >
+          <h2>Create a New Post</h2>
 
-    <div className="posts-scroll">
-      {posts.length === 0 ? (
-        <p>No posts yet.</p>
-      ) : (
-        posts.map((p, i) => (
-          <div key={p.id} className="post-item">
-            {editingIndex === i ? (
-              <>
-                <textarea
-                  className="post-input"
-                  rows={3}
-                  value={editText}
-                  onChange={(e) => setEditText(e.target.value)}
-                />
-                <button className="add-post-btn" onClick={() => saveEdit(i)}>
-                  Save
-                </button>
-              </>
-            ) : (
-              <>
+          <label htmlFor="title">Title:</label>
+          <input
+            className="title-input"
+            type="text"
+            id="title"
+            name="title"
+            placeholder="Add a title..."
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
+
+          <label htmlFor="content">Content:</label>
+          <textarea
+            className="post-input"
+            rows={3}
+            placeholder="Write your thoughts..."
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            id="content"
+            name="content"
+            required
+          />
+
+          <label htmlFor="image">Image (optional):</label>
+          <input
+            type="file"
+            id="image"
+            name="image"
+            accept="image/*"
+            onChange={(e) => setImage(e.target.files?.[0] || null)}
+          />
+
+          <button type="submit" className="add-post-btn">
+            Add Post
+          </button>
+        </form>
+
+        <div className="posts-scroll">
+          {posts.length === 0 ? (
+            <p>No posts yet.</p>
+          ) : (
+            posts.map((p, i) => (
+              <div key={p.id} className="post-item">
+                <h3>{p.title}</h3>
                 <p>{p.content}</p>
+
                 <div className="post-buttons">
-                  <button className="edit-post-btn" onClick={() => startEditing(i)}>
-                    Edit
-                  </button>
-                  <button className="delete-post-btn" onClick={() => handleDelete(i)}>
+                  <button
+                    className="delete-post-btn"
+                    onClick={() => handleDelete(i)}
+                  >
                     Delete
                   </button>
                 </div>
-              </>
-            )}
-          </div>
-        ))
-      )}
+              </div>
+            ))
+          )}
+        </div>
+      </main>
     </div>
-  </main>
-</div>
-
   );
 };
 
