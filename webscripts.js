@@ -1,5 +1,5 @@
 let accessToken = null;
-const API_URL = "http://127.0.0.1:8000/api/";
+//const API_URL = "http://127.0.0.1:8000/api/";
 const API_URL = "http://ec2-35-88-153-74.us-west-2.compute.amazonaws.com:8000/api/";
 
 function handleCredentialResponse(response) {
