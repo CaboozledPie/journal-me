@@ -87,8 +87,9 @@ def entry_list(request):
                 "id": entry.id,
                 "title": entry.title,
                 "content": entry.content,
-                "img_url": entry.image.url if entry.image else "",
+                "image": entry.image.name if entry.image else "",
                 "tags": entry.tags if entry.tags else [],
+                "created_at": entry.created_at,
                 "streak": profile.streak,
             },
             status=status.HTTP_201_CREATED
