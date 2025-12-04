@@ -7,10 +7,13 @@ from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from django.conf import settings
+
+DEFAULT_TAGS = ["School", "Work", "Vacation", "Break", "Hobby"]
+
 User = get_user_model()
 
 # Create your views here.
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def google_auth(request):
@@ -27,6 +30,7 @@ def google_auth(request):
         email = idinfo.get("email")
         name = idinfo.get('name', "")
         picture = idinfo.get("picture", "")
+        tags = DEFAULT_TAGS
 
         user, created = User.objects.get_or_create(
             email = email,
@@ -35,6 +39,7 @@ def google_auth(request):
                 "username": email,
                 "name": name,
                 "picture": picture,
+                "tags": tags,
             }
         )
         if not created:
@@ -43,6 +48,7 @@ def google_auth(request):
             user.email = email
             user.name = name
             user.picture = picture
+            user.tags = tags
             user.save()
 
         # create token
@@ -56,5 +62,50 @@ def google_auth(request):
             "picture": user.picture,
         }
         )
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def test_auth(request):
+    try:
+        if not settings.DEBUG: # only works in debug mode!
+            return Response({"error": "Not allowed"}, status=403)
+        
+        google_id = "fakegoogle_idfortest"
+        email = "testc7484@gmail.com"
+        name = "test cs35L"
+        picture = "https://lh3.googleusercontent.com/a/ACg8ocIlm2bDNyHLOxRZFyalBByoFLchT84mrF72eXJw5mV0ODbuPw=s96-c"
+        tags = DEFAULT_TAGS
+        
+        user, created = User.objects.get_or_create(
+            email = email,
+            defaults = {
+                "google_sub": google_id,
+                "username": email,
+                "name": name,
+                "picture": picture,
+                "tags": tags,
+            }
+        )
+        if not created:
+            if user.google_sub is None:
+                user.google_sub = google_id
+            user.email = email
+            user.name = name
+            user.picture = picture
+            user.tags = tags
+            user.save()
+
+        # create token
+        refresh = RefreshToken.for_user(user)
+
+        return Response({
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+            "email": user.email,
+            "name": user.name,
+            "picture": user.picture,
+        })
     except Exception as e:
         return Response({"error": str(e)}, status=400)

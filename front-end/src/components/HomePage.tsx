@@ -14,92 +14,63 @@ interface Post {
 }
 
 const API_URL =
-  "http://ec2-35-88-153-74.us-west-2.compute.amazonaws.com:8000/api/journal/entries/";
-const DELETE_URL =
-  "http://ec2-35-88-153-74.us-west-2.compute.amazonaws.com:8000/api/journal/delete-entry/";
+  "http://ec2-35-88-153-74.us-west-2.compute.amazonaws.com:8000/api/";
 
 const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
-  const [text, setText] = useState("");
-  const [title, setTitle] = useState("");
   const [posts, setPosts] = useState<Post[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editText, setEditText] = useState("");
   const [search, setSearch] = useState("");
 
-  // --- Fetch entries from backend ---
+  // Post input state
+  const [title, setTitle] = useState("");
+  const [text, setText] = useState("");
+  const [image, setImage] = useState<File | null>(null);
+  const [streak, setStreak] = useState<number>(0);
+
+  // Fetch entries on mount
   useEffect(() => {
+    const accessToken = localStorage.getItem("access_token");
+
     const fetchEntries = async () => {
       try {
-        const accessToken = localStorage.getItem("access_token");
-        if (!accessToken) {
-          console.error("Access token not found");
-          onLogout();
-          return;
-        }
-
-        const res = await fetch(API_URL, {
-          method: "GET",
+        const res = await fetch(`${API_URL}journal/entries/`, {
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
           },
         });
 
-        if (!res.ok) {
-          if (res.status === 401 || res.status === 403) {
-            console.error("Authentication failed");
-            localStorage.removeItem("access_token");
-            onLogout();
-            return;
-          }
-          throw new Error(`Fetch failed: ${res.status}`);
-        }
-
         const data = await res.json();
-        console.log("Fetched entries 1:", data);
-
-        // Auto adapt backend structure:
-        // If backend returns {entries: [...]}
-        if (Array.isArray(data)) {
-          setPosts(data);
-        } else if (Array.isArray(data.entries)) {
-          setPosts(data.entries);
-        } else {
-          setPosts([]);
+        setPosts(data.entries || []);
+      
+        if (data.streak !== undefined) {
+          setStreak(data.streak);
         }
-      } catch (err) {
-        console.error("Error fetching posts:", err);
+      } catch (error) {
+        console.error("Error fetching posts:", error);
       }
     };
 
     fetchEntries();
   }, [onLogout]);
 
-  // --- Add new Post ---
+  // Add post
   const handleAdd = async () => {
-    if (!title.trim() || !text.trim()) {
-      alert("Title and content cannot be empty");
+    if (!text.trim() || !title.trim()) return;
+
+    const accessToken = localStorage.getItem("access_token");
+    if (!accessToken) {
+      console.error("Not signed in");
       return;
     }
 
     const formData = new FormData();
     formData.append("title", title);
     formData.append("content", text);
+    if (image) formData.append("image", image);
 
     try {
-      const accessToken = localStorage.getItem("access_token");
-      if (!accessToken) {
-        alert("Access token missing");
-        onLogout();
-        return;
-      }
-
-      console.log("📤 Sending POST FormData:");
-      for (const pair of formData.entries()) {
-        console.log("➡️", pair[0], "=", pair[1]);
-      }
-
-      const res = await fetch(API_URL, {
+      const res = await fetch(`${API_URL}journal/entries/`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -107,24 +78,28 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
         body: formData,
       });
 
-      console.log("🟡 Status:", res.status);
-
-      const newPost = await res.json().catch(() => null);
-      console.log("🟢 Response:", newPost);
-
       if (!res.ok) {
-        alert(`Failed: ${newPost?.detail || res.statusText}`);
-        return;
+        const err = await res.json().catch(() => ({}));
+        console.error("Backend error:", err);
+        throw new Error(err.detail || "Error creating post");
       }
 
-      // Insert new post at top
-      setPosts([newPost, ...posts]);
+      const data = await res.json();
 
-      // Clear inputs
-      setText("");
+      // Add new post to UI
+      setPosts([data, ...posts]);
+
+      // Update streak
+      if (data.streak !== undefined) {
+        setStreak(data.streak);
+      }
+
+      // Reset fields
       setTitle("");
+      setText("");
+      setImage(null);
     } catch (err) {
-      console.error(" Network error:", err);
+      console.error("Error:", err);
     }
   };
 
@@ -221,9 +196,7 @@ const handleSearch = async () => {
     updated[index].content = editText;
     setPosts(updated);
 
-    setEditingIndex(null);
-    setEditText("");
-  };
+  const name = localStorage.getItem("name");
 
   // ===========This is useless code right now, we don't have edit button needed==============
 
@@ -237,28 +210,51 @@ const handleSearch = async () => {
       </header>
 
       <main className="home-main">
-
-        {/* ------ Create Post UI ------ */}
-        <div className="post-creator">
+        <form
+          className="post-creator"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleAdd();
+          }}
+        > 
+          <h2> Hi {name}!</h2>
+          <p>🔥 Current streak: {streak} day{streak !== 1 ? "s" : ""}</p>
           <h2>Create a New Post</h2>
 
+          <label htmlFor="title">Title:</label>
           <input
-            className="post-title-input"
+            className="title-input"
             type="text"
-            placeholder="Title"
+            id="title"
+            name="title"
+            placeholder="Add a title..."
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            required
           />
 
+          <label htmlFor="content">Content:</label>
           <textarea
             className="post-input"
             rows={3}
             placeholder="Write your thoughts..."
             value={text}
             onChange={(e) => setText(e.target.value)}
+            id="content"
+            name="content"
+            required
           />
 
-          <button className="add-post-btn" onClick={handleAdd}>
+          <label htmlFor="image">Image (optional):</label>
+          <input
+            type="file"
+            id="image"
+            name="image"
+            accept="image/*"
+            onChange={(e) => setImage(e.target.files?.[0] || null)}
+          />
+
+          <button type="submit" className="add-post-btn">
             Add Post
           </button>
         </div>
@@ -279,7 +275,6 @@ const handleSearch = async () => {
 
 
 
-        {/* ------ Posts List ------ */}
         <div className="posts-scroll">
           {posts.length === 0 ? (
             <p>No posts yet.</p>
@@ -318,11 +313,20 @@ const handleSearch = async () => {
                     </div>
                   </>
                 )}
+
+
+                <div className="post-buttons">
+                  <button
+                    className="delete-post-btn"
+                    onClick={() => handleDelete(i)}
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             ))
           )}
         </div>
-
       </main>
     </div>
   );
