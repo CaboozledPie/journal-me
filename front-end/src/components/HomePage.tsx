@@ -7,9 +7,10 @@ interface PostPageProps {
 
 interface Post {
   id: number;
-  title?: string;
-  content: string;
-  image?: string;
+  title: string;      
+  content: string;    
+  image?: string;     // optional
+  created_at: string;   //time
 }
 
 const API_URL =
@@ -17,6 +18,9 @@ const API_URL =
 
 const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
   const [posts, setPosts] = useState<Post[]>([]);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editText, setEditText] = useState("");
+  const [search, setSearch] = useState("");
 
   // Post input state
   const [title, setTitle] = useState("");
@@ -99,15 +103,102 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
     }
   };
 
-  // Delete post (frontend only)
-  const handleDelete = (index: number) => {
-    setPosts(posts.filter((_, i) => i !== index));
-  };
+  // --- Local delete (frontend only) ---
+  // const handleDelete = (index: number) => {
+  //   setPosts(posts.filter((_, i) => i !== index));
+  // };
+  const handleDelete = async (id: number) => {
+  try {
+    const accessToken = localStorage.getItem("access_token");
+    if (!accessToken) {
+      onLogout();
+      return;
+    }
 
-  const MEDIA_URL =
-  "http://ec2-35-88-153-74.us-west-2.compute.amazonaws.com:8000/media/";
+    const res = await fetch(`${DELETE_URL}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        "entry-id": id,
+      }),
+    });
+
+    console.log("DELETE response:", res.status);
+
+    const data = await res.json().catch(() => null);
+    console.log("DELETE response body:", data);
+
+    if (!res.ok) {
+      alert(`Delete failed: ${data?.detail || res.statusText}`);
+      return;
+    }
+
+    // ✔ 用 id 删除 UI
+    setPosts(posts.filter(p => p.id !== id));
+
+  } catch (err) {
+    console.error("Delete error:", err);
+  }
+};
+
+
+//=============handle search================
+const handleSearch = async () => {
+  try {
+    const accessToken = localStorage.getItem("access_token");
+    if (!accessToken) {
+      onLogout();
+      return;
+    }
+
+    let url = API_URL;
+    if (search.trim() !== "") {
+      url += `?query=${encodeURIComponent(search.trim())}`;
+    }
+
+    const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!res.ok) return;
+
+    const data = await res.json();
+
+    if (Array.isArray(data)) setPosts(data);
+    else if (Array.isArray(data.entries)) setPosts(data.entries);
+    else setPosts([]);
+  } catch (err) {
+    console.error("Search error:", err);
+  }
+};
+
+
+  
+
+  // // --- Start editing ---
+  // const startEditing = (index: number) => {
+  //   setEditingIndex(index);
+  //   setEditText(posts[index].content);
+  // };
+
+  // --- Save editing (frontend only) ---
+  // ===========This is useless code right now, we don't have edit button needed==============
+
+  const saveEdit = (index: number) => {
+    const updated = [...posts];
+    updated[index].content = editText;
+    setPosts(updated);
 
   const name = localStorage.getItem("name");
+
+  // ===========This is useless code right now, we don't have edit button needed==============
 
   return (
     <div className="home-container">
@@ -166,7 +257,23 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
           <button type="submit" className="add-post-btn">
             Add Post
           </button>
-        </form>
+        </div>
+        {/* ------ Search bar ------ */}
+      <div className="search-bar">
+        <input
+          className="search-input"
+          type="text"
+          placeholder="🔍 Search posts..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      <button className="search-btn" onClick={handleSearch}>
+          Search
+      </button>
+    </div>
+
+
+
 
         <div className="posts-scroll">
           {posts.length === 0 ? (
@@ -174,14 +281,37 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
           ) : (
             posts.map((p, i) => (
               <div key={p.id} className="post-item">
-                <h3>{p.title}</h3>
-                <p>{p.content}</p>
-               {p.image && (
-                  <img
-                    src={`${MEDIA_URL}${p.image}`}
-                    alt="Post"
-                    className="post-image"
-                  />
+                {editingIndex === i ? (
+                  <>
+                    <textarea
+                      className="post-input"
+                      rows={3}
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                    />
+                    <button className="add-post-btn" onClick={() => saveEdit(i)}>
+                      Save
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    {/* ⭐ 显示标题 */}
+                  
+                  <h3 className="post-date">
+                    {p.created_at ? new Date(p.created_at).toLocaleDateString() : ""}
+                  </h3>
+                    <h3 className="post-title">{p.title || "Untitled"}</h3>
+                    <p>{p.content}</p>
+
+                    <div className="post-buttons">
+                      {/* <button className="edit-post-btn" onClick={() => startEditing(i)}>
+                        Edit
+                      </button> */}
+                      <button className="delete-post-btn" onClick={() => handleDelete(p.id)}>
+                        Delete
+                      </button>
+                    </div>
+                  </>
                 )}
 
 
