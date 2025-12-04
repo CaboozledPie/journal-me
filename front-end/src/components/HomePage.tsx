@@ -87,6 +87,7 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
     formData.append("title", title);
     formData.append("content", text);
     if (image) formData.append("image", image);
+    
 
     try {
       const res = await fetch(`${API_URL}journal/entries/`, {
@@ -304,15 +305,9 @@ const saveEdit = (index: number) => {
             <p>No posts yet.</p>
           ) : (
             posts.slice().sort((a, b) => b.id - a.id).map((p, i) => (
-              <div key={p.id} className="post-item">
+              <div key={p.id} id={"block-" + i.toString()} className="post-item">
                 {editingIndex === i ? (
                   <>
-                    <textarea
-                      className="post-input"
-                      rows={3}
-                      value={editText}
-                      onChange={(e) => setEditText(e.target.value)}
-                    />
                     <button className="add-post-btn" onClick={() => saveEdit(i)}>
                       Save
                     </button>
@@ -321,13 +316,13 @@ const saveEdit = (index: number) => {
                   <>
                     {/* ⭐ 显示标题 */}
                   
-                  <h3 className="post-date">
-                    {p.created_at ? new Date(p.created_at).toLocaleDateString() : ""}
+                   <h3 id={"post-date-" + i.toString()} className="post-date">
+                    { new Date(p.created_at).toLocaleDateString() }
                   </h3>
-                    <h3 className="post-title">{p.title || "Untitled"}</h3>
-                    <p>{p.content}</p>
+                    <h3 id={"post-title-" + i.toString()}className="post-title">{p.title || "Untitled"}</h3>
+                    <p id={"post-content-" + i.toString()} className="post-content">{p.content}</p>
                     {p.image && (
-                  <img
+                  <img id={"post-image-" + i.toString()}
                     src={`${MEDIA_URL}${p.image}`}
                     alt="Post"
                     className="post-image"
@@ -338,7 +333,7 @@ const saveEdit = (index: number) => {
                       {/* <button className="edit-post-btn" onClick={() => startEditing(i)}>
                         Edit
                       </button> */}
-                      <button className="delete-post-btn" onClick={() => handleDelete(p.id)}>
+                      <button id={"delete-" + i.toString()}className="delete-post-btn" onClick={() => handleDelete(p.id)}>
                         Delete
                       </button>
                     </div>
