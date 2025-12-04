@@ -83,18 +83,13 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
         onClick={() => {
           console.log("🔧 Testing /auth/test-auth/ ...");
 
-          // Get saved token (from previous Google login)
-          const accessToken = localStorage.getItem("access_token");
-          if (!accessToken) {
-            alert("❌ No access token found! Please login with Google first.");
-            return;
-          }
+          
 
           fetch(`${url}auth/test-auth/`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${accessToken}`,
+              // Authorization: `Bearer ${accessToken}`,
             },
             body: JSON.stringify({}),
           })
@@ -112,7 +107,12 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
               if (data.email) localStorage.setItem("email", data.email);
               if (data.picture) localStorage.setItem("picture", data.picture);
 
-              
+              // Get saved token (from previous Google login)
+              const accessToken = localStorage.getItem("access_token");
+              if (!accessToken) {
+                alert("❌ No access token found! Please login with Google first.");
+                return;
+              }
 
               onLogin(); // go to homepage
             })
