@@ -47,7 +47,23 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
       }
     };
 
+    const fetchStreak = async () => {
+      const accessToken = localStorage.getItem("access_token");
+      if (!accessToken) return;
+
+      try {
+        const res = await fetch(`${API_URL}profile/`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        const data = await res.json();
+        setStreak(data.streak || 0);
+      } catch (err) {
+        console.error("Error fetching streak:", err);
+      }
+    };
+
     fetchEntries();
+    fetchStreak();
   }, [onLogout]);
 
   // Add post
@@ -108,6 +124,7 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
   "http://ec2-35-88-153-74.us-west-2.compute.amazonaws.com:8000/media/";
 
   const name = localStorage.getItem("name");
+  const profileImage = localStorage.getItem("profile_picture") || "";
 
   return (
     <div className="home-container">
@@ -127,6 +144,13 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
           }}
         > 
           <h2> Hi {name}!</h2>
+          {profileImage && (
+            <img
+              src={profileImage}
+              alt="Profile"
+              className="profile-image"
+            />
+          )}
           <p>🔥 Current streak: {streak} day{streak !== 1 ? "s" : ""}</p>
           <h2>Create a New Post</h2>
 
