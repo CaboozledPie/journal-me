@@ -47,7 +47,7 @@ def entry_list(request):
     user = request.user
 
     if request.method == 'GET':
-        entries = JournalEntry.objects.filter(user=user).values('id', 'title', 'content', 'created_at')
+        entries = JournalEntry.objects.filter(user=user).values('id', 'title', 'content', 'image', 'created_at')
         
         query = request.GET.get("query");
         print("query: ", query)
