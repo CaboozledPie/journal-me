@@ -22,6 +22,7 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
   const [image, setImage] = useState<File | null>(null);
+  const [streak, setStreak] = useState<number>(0);
 
   // Fetch entries on mount
   useEffect(() => {
@@ -37,6 +38,10 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
 
         const data = await res.json();
         setPosts(data.entries || []);
+      
+        if (data.streak !== undefined) {
+          setStreak(data.streak);
+        }
       } catch (error) {
         console.error("Error fetching posts:", error);
       }
@@ -80,6 +85,11 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
       // Add new post to UI
       setPosts([data, ...posts]);
 
+      // Update streak
+      if (data.streak !== undefined) {
+        setStreak(data.streak);
+      }
+
       // Reset fields
       setTitle("");
       setText("");
@@ -117,6 +127,7 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
           }}
         > 
           <h2> Hi {name}!</h2>
+          <p>🔥 Current streak: {streak} day{streak !== 1 ? "s" : ""}</p>
           <h2>Create a New Post</h2>
 
           <label htmlFor="title">Title:</label>
