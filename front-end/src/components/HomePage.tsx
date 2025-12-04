@@ -309,16 +309,6 @@ const saveEdit = (index: number) => {
                     </div>
                   </>
                 )}
-
-
-                <div className="post-buttons">
-                  <button
-                    className="delete-post-btn"
-                    onClick={() => handleDelete(i)}
-                  >
-                    Delete
-                  </button>
-                </div>
               </div>
             ))
           )}
