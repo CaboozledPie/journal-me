@@ -62,7 +62,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           />
    
       <button
+       id="skip-google-btn"
         style={{
+          
           marginTop: "20px",
           padding: "10px 20px",
           fontSize: "16px",
