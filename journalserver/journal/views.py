@@ -15,6 +15,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework import status
 from .models import JournalEntry
+from .forms import JournalEntryForm
 
 User = get_user_model()
 
@@ -60,13 +61,13 @@ def entry_list(request):
             return Response({"entries": list(entries)})
 
     elif request.method == 'POST':
-        title = request.data.get('title')
-        content = request.data.get('content')
-
-        if not title or not content:
-            return Response({"error": "Missing title or content"}, status=status.HTTP_400_BAD_REQUEST)
-
-        entry = JournalEntry.objects.create(user=user, title=title, content=content)
+        form = JournalEntryForm(request.POST, request.FILES)
+        if form.is_valid():
+            entry = form.save(commit=False)
+            entry.user = user
+            entry.save()
+        else:
+            return Response({"error": form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
         # streak
         try:
@@ -75,8 +76,14 @@ def entry_list(request):
             return Response({"error": "failed to find profile"}, status=404)
         update_streak(profile)
         
-        return Response(
-            {"id": entry.id, "title": entry.title, "content": entry.content, "streak": profile.streak},
+        return JsonResponse(
+            {
+                "id": entry.id,
+                "title": entry.title,
+                "content": entry.content,
+                "img_url": entry.image.url if entry.image else "",
+                "streak": profile.streak
+            },
             status=status.HTTP_201_CREATED
         )
 

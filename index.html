@@ -15,10 +15,24 @@
         <button onclick="window.getProfile()">see profile details</button>
         <div></div>
         <h3>type in search bar to influence get button</h3>
-        <input type="text" id="entry-input"></input>
-        <button onclick="window.postJournalEntry()">test journal entry post</button>
         <input type="text" id="entry-search"></input>
         <button onclick="window.getJournalEntry()">test journal entry get</button>
+
+        <!-- journal upload form -->
+        <form id="journal-entry-form" method="post" enctype="multipart/form-data">
+
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" required />
+
+            <label for="content">Content:</label>
+            <textarea id="content" name="content" required></textarea>
+
+            <label for="image">Image (optional):</label>
+            <input type="file" id="image" name="image" accept="image/*" />
+
+            <button onclick="window.postJournalEntry()" type="button">Save Entry</button>
+        </form>
+
         <!-- Google login button thing here -->
         <div id="google-login"><div>
     </body>
