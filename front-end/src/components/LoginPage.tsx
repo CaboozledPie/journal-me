@@ -6,19 +6,7 @@ interface LoginPageProps {
   onLogin: () => void;
 }
 const url = "http://ec2-35-88-153-74.us-west-2.compute.amazonaws.com:8000/api/";
-// ========== ADD THIS ==========
-// (window as any).ping = function () {
-//   fetch(`${url}ping/`)
-//     .then((res) => res.json())
-//     .then((data) => {
-//       console.log("PING SUCCESS:", data);
-//       alert(JSON.stringify(data));
-//     })
-//     .catch((err) => {
-//       console.error("PING ERROR:", err);
-//     });
-// };
-// ==============================
+
 
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   return (
@@ -73,31 +61,66 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
               alert("Google login failed, please try again.");
             }}
           />
-         {/* ====== 🚀 Test Login Button (Skip Google) ====== */}
-          <button
-            // style={{
-            //   marginTop: "20px",
-            //   padding: "10px 20px",
-            //   fontSize: "16px",
-            //   cursor: "pointer",
-            //   backgroundColor: "#4CAF50",
-            //   color: "white",
-            //   border: "none",
-            //   borderRadius: "6px",
-            // }}
-              style={{
-                color: "black",
-              }}
-            onClick={() => {
-              console.log("🔧 Test Login Activated (Skipping Google)");
-              // Fake token for testing
-              localStorage.setItem("access_token", "TEST_TOKEN");
-              onLogin(); // redirect to homepage
-            }}
-          >
-            Test Login (Skip Google)
-          </button>
-           {/* ====== 🚀 Test Login Button (Skip Google) ====== */}
+   
+      <button
+       id="skip-google-btn"
+        style={{
+          
+          marginTop: "20px",
+          padding: "10px 20px",
+          fontSize: "16px",
+          cursor: "pointer",
+          backgroundColor: "#4CAF50",
+          color: "white",
+          border: "none",
+          borderRadius: "6px",
+        }}
+        onClick={() => {
+          console.log("🔧 Testing /auth/test-auth/ ...");
+
+          // Get saved token (from previous Google login)
+          const accessToken = localStorage.getItem("access_token");
+          if (!accessToken) {
+            alert("❌ No access token found! Please login with Google first.");
+            return;
+          }
+
+          fetch(`${url}auth/test-auth/`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify({}),
+          })
+            .then((res) => {
+              if (!res.ok) throw new Error("Auth failed");
+              return res.json();
+            })
+            .then((data) => {
+              console.log("Backend /test-auth/ result:", data);
+
+              // ⭐ save user info returned from backend
+              if (data.access) localStorage.setItem("access_token", data.access);
+              if (data.refresh) localStorage.setItem("refresh_token", data.refresh);
+              if (data.name) localStorage.setItem("name", data.name);
+              if (data.email) localStorage.setItem("email", data.email);
+              if (data.picture) localStorage.setItem("picture", data.picture);
+
+              
+
+              onLogin(); // go to homepage
+            })
+            .catch((err) => {
+              console.error("Test-auth error:", err);
+              alert("Backend auth test failed!");
+            });
+        }}
+      >
+        Skip Google (Use test-auth)
+      </button>
+
+
         </div>
       </div>
     </div>
