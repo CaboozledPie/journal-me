@@ -6,6 +6,7 @@ interface LoginPageProps {
   onLogin: () => void;
 }
 const url = "http://ec2-35-88-153-74.us-west-2.compute.amazonaws.com:8000/api/";
+const ENABLE_GSI = import.meta.env.VITE_ENABLE_GSI === "true";
 
 
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
@@ -18,6 +19,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           <p style={{ margin: "15px 0", fontWeight: 500 }}>
             Sign in with Google
           </p>
+          
+
+          {ENABLE_GSI && (
           <GoogleLogin
             onSuccess={(credentialResponse) => {
               const idToken = credentialResponse.credential;
@@ -61,7 +65,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
               alert("Google login failed, please try again.");
             }}
           />
-   
+          )}
+
       <button
        id="skip-google-btn"
         style={{
