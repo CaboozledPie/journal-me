@@ -1,6 +1,6 @@
 let accessToken = null;
-//const API_URL = "http://127.0.0.1:8000/api/";
-const API_URL = "http://ec2-35-88-153-74.us-west-2.compute.amazonaws.com:8000/api/";
+const API_URL = "http://127.0.0.1:8000/api/";
+//const API_URL = "http://ec2-35-88-153-74.us-west-2.compute.amazonaws.com:8000/api/";
 
 function handleCredentialResponse(response) {
     const token = response.credential; // Google ID token
@@ -34,6 +34,33 @@ window.testLogin = function() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}),
+    })
+        .then((res) => {
+            if (!res.ok) {
+                // Parse the error response body
+                return res.json().then(err => {
+                    console.error("Backend error response:", err);
+                    throw new Error(err.detail || JSON.stringify(err)); // Assuming 'detail' or general JSON error
+                });
+            }
+            return res.json();
+        })
+        .then((data) => {
+            console.log("Backend response:", data);
+            accessToken = data.access // change to localStorage later!
+            alert(`Logged in as: ${data.name}`);
+        })
+        .catch((err) => console.error("Error:", err));
+}
+
+window.createTag = function() { // probably useless
+    const newTag = document.getElementById("tag-input");
+    fetch(`${API_URL}journal/add-tag/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            "tag": newTag
+        }),
     })
         .then((res) => {
             if (!res.ok) {

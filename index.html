@@ -15,6 +15,9 @@
         <button onclick="window.getProfile()">see profile details</button>
         <button onclick="window.testLogin()">test login</button>
         <div></div>
+        <input type="text" id="tag-input"></input>
+        <button onclick="window.addTag()">test adding new tag</button>
+        <div></div>
         <h3>type in search bar to influence get button</h3>
         <input type="text" id="entry-search"></input>
         <button onclick="window.getJournalEntry()">test journal entry get</button>
@@ -24,6 +27,9 @@
 
             <label for="title">Title:</label>
             <input type="text" id="title" name="title" required />
+
+            <label for="tags">Tags (optional):</label>
+            <input type="text" id="tags" name="tags"/>
 
             <label for="content">Content:</label>
             <textarea id="content" name="content" required></textarea>

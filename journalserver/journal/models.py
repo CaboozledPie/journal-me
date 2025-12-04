@@ -11,6 +11,7 @@ class JournalEntry(models.Model):
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to="journal_images/", null=True, blank=True)
+    tags = models.JSONField(default=list)
 
     def __str__(self):
         return self.title

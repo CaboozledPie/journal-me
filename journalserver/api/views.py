@@ -43,5 +43,6 @@ def profile(request):
         "name": profile.name,
         "streak": profile.streak,
         "longest-streak": profile.longest_streak,
-        "last-entry-date": profile.last_entry_date
+        "last-entry-date": profile.last_entry_date,
+        "tags": profile.tags,
     }, status=200)

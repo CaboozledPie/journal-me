@@ -65,16 +65,21 @@ def entry_list(request):
         if form.is_valid():
             entry = form.save(commit=False)
             entry.user = user
+            
             entry.save()
         else:
             return Response({"error": form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-        # streak
+        # streak & user tags history
         try:
             profile = User.objects.get(email=user)
         except:
             return Response({"error": "failed to find profile"}, status=404)
         update_streak(profile)
+        for tag in entry.tags:
+            if tag not in profile.tags:
+                profile.tags.append(tag)
+        profile.save()
         
         return JsonResponse(
             {
@@ -82,7 +87,8 @@ def entry_list(request):
                 "title": entry.title,
                 "content": entry.content,
                 "img_url": entry.image.url if entry.image else "",
-                "streak": profile.streak
+                "tags": entry.tags if entry.tags else [],
+                "streak": profile.streak,
             },
             status=status.HTTP_201_CREATED
         )
@@ -103,3 +109,22 @@ def delete_entry(request):
 
     entry.delete()
     return Response({"success": True})
+
+@csrf_exempt
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def add_tag(request):
+    user = request.user
+    try:
+        profile = User.objects.get(email=user)
+    except:
+        return Response({"error": "failed to find profile"}, status=404)
+    
+    tags = profile.tags
+    new_tag = request.data.get('tag')
+    tags.append(new_tag)
+    
+    profile.tags = tags
+    profile.save()
+    return Response({"tag": new_tag}, status=status.HTTP_201_CREATED)
