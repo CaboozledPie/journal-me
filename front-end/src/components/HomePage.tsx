@@ -44,6 +44,7 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
         });
 
         const data = await res.json();
+        console.log(data)
         setPosts(data.entries || []);
       
         if (data.streak !== undefined) {
@@ -87,7 +88,7 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
     formData.append("title", title);
     formData.append("content", text);
     if (image) formData.append("image", image);
-    
+
 
     try {
       const res = await fetch(`${API_URL}journal/entries/`, {
@@ -105,7 +106,7 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
       }
 
       const data = await res.json();
-
+      console.log(data)
       // Add new post to UI
       setPosts([data, ...posts]);
 
