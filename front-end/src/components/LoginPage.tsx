@@ -71,16 +71,19 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           />
          {/* ====== 🚀 Test Login Button (Skip Google) ====== */}
           <button
-            style={{
-              marginTop: "20px",
-              padding: "10px 20px",
-              fontSize: "16px",
-              cursor: "pointer",
-              backgroundColor: "#4CAF50",
-              color: "white",
-              border: "none",
-              borderRadius: "6px",
-            }}
+            // style={{
+            //   marginTop: "20px",
+            //   padding: "10px 20px",
+            //   fontSize: "16px",
+            //   cursor: "pointer",
+            //   backgroundColor: "#4CAF50",
+            //   color: "white",
+            //   border: "none",
+            //   borderRadius: "6px",
+            // }}
+              style={{
+                color: "black",
+              }}
             onClick={() => {
               console.log("🔧 Test Login Activated (Skipping Google)");
               // Fake token for testing
