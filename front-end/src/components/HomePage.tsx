@@ -30,8 +30,9 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
     const fetchEntries = async () => {
       try {
         const res = await fetch(`${API_URL}journal/entries/`, {
+          method: 'GET',
           headers: {
-            Authorization: `Bearer ${accessToken}`,
+            "Authorization": `Bearer ${accessToken}`,
           },
         });
 
