@@ -18,11 +18,15 @@ const API_URL =
 
 const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
   const [posts, setPosts] = useState<Post[]>([]);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editText, setEditText] = useState("");
+  const [search, setSearch] = useState("");
 
   // Post input state
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
   const [image, setImage] = useState<File | null>(null);
+  const [streak, setStreak] = useState<number>(0);
 
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editText, setEditText] = useState("");
@@ -42,6 +46,10 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
 
         const data = await res.json();
         setPosts(data.entries || []);
+      
+        if (data.streak !== undefined) {
+          setStreak(data.streak);
+        }
       } catch (error) {
         console.error("Error fetching posts:", error);
       }
@@ -84,6 +92,11 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
 
       // Add new post to UI
       setPosts([data, ...posts]);
+
+      // Update streak
+      if (data.streak !== undefined) {
+        setStreak(data.streak);
+      }
 
       // Reset fields
       setTitle("");
@@ -151,6 +164,8 @@ const saveEdit = (index: number) => {
 
   const name = localStorage.getItem("name");
 
+  // ===========This is useless code right now, we don't have edit button needed==============
+
   return (
     <div className="home-container">
       <header className="home-header">
@@ -169,6 +184,7 @@ const saveEdit = (index: number) => {
           }}
         > 
           <h2> Hi {name}!</h2>
+          <p>🔥 Current streak: {streak} day{streak !== 1 ? "s" : ""}</p>
           <h2>Create a New Post</h2>
 
           <label htmlFor="title">Title:</label>
@@ -207,7 +223,23 @@ const saveEdit = (index: number) => {
           <button type="submit" className="add-post-btn">
             Add Post
           </button>
-        </form>
+        </div>
+        {/* ------ Search bar ------ */}
+      <div className="search-bar">
+        <input
+          className="search-input"
+          type="text"
+          placeholder="🔍 Search posts..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      <button className="search-btn" onClick={handleSearch}>
+          Search
+      </button>
+    </div>
+
+
+
 
         {/* <div className="posts-scroll">
           {posts.length === 0 ? (
@@ -215,14 +247,37 @@ const saveEdit = (index: number) => {
           ) : (
             posts.map((p, i) => (
               <div key={p.id} className="post-item">
-                <h3>{p.title}</h3>
-                <p>{p.content}</p>
-               {p.image && (
-                  <img
-                    src={`${MEDIA_URL}${p.image}`}
-                    alt="Post"
-                    className="post-image"
-                  />
+                {editingIndex === i ? (
+                  <>
+                    <textarea
+                      className="post-input"
+                      rows={3}
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                    />
+                    <button className="add-post-btn" onClick={() => saveEdit(i)}>
+                      Save
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    {/* ⭐ 显示标题 */}
+                  
+                  <h3 className="post-date">
+                    {p.created_at ? new Date(p.created_at).toLocaleDateString() : ""}
+                  </h3>
+                    <h3 className="post-title">{p.title || "Untitled"}</h3>
+                    <p>{p.content}</p>
+
+                    <div className="post-buttons">
+                      {/* <button className="edit-post-btn" onClick={() => startEditing(i)}>
+                        Edit
+                      </button> */}
+                      <button className="delete-post-btn" onClick={() => handleDelete(p.id)}>
+                        Delete
+                      </button>
+                    </div>
+                  </>
                 )}
 
 
