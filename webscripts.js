@@ -30,17 +30,15 @@ function handleCredentialResponse(response) {
 };
 
 window.postJournalEntry = function() {
-    const entry_text = document.getElementById("entry-input").value;
+    const form = document.getElementById("journal-entry-form");
+    const formData = new FormData(form);
+    
     fetch(`${API_URL}journal/entries/`, {
         method: 'POST',
         headers: {
             "Authorization": `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-            title: "journal test!",
-            content: entry_text,
-        }),
+        body: formData
     })
         .then((res) => {
             if (!res.ok) {
