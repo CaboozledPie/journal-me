@@ -9,6 +9,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from django.conf import settings
 
+DEFAULT_TAGS = ["School", "Work", "Vacation", "Break", "Hobby"]
+
 User = get_user_model()
 
 # Create your views here.
@@ -28,6 +30,7 @@ def google_auth(request):
         email = idinfo.get("email")
         name = idinfo.get('name', "")
         picture = idinfo.get("picture", "")
+        tags = DEFAULT_TAGS
 
         user, created = User.objects.get_or_create(
             email = email,
@@ -36,6 +39,7 @@ def google_auth(request):
                 "username": email,
                 "name": name,
                 "picture": picture,
+                "tags": tags,
             }
         )
         if not created:
@@ -44,6 +48,7 @@ def google_auth(request):
             user.email = email
             user.name = name
             user.picture = picture
+            user.tags = tags
             user.save()
 
         # create token
@@ -71,6 +76,7 @@ def test_auth(request):
         email = "testc7484@gmail.com"
         name = "test cs35L"
         picture = "https://lh3.googleusercontent.com/a/ACg8ocIlm2bDNyHLOxRZFyalBByoFLchT84mrF72eXJw5mV0ODbuPw=s96-c"
+        tags = DEFAULT_TAGS
         
         user, created = User.objects.get_or_create(
             email = email,
@@ -79,6 +85,7 @@ def test_auth(request):
                 "username": email,
                 "name": name,
                 "picture": picture,
+                "tags": tags,
             }
         )
         if not created:
@@ -87,6 +94,7 @@ def test_auth(request):
             user.email = email
             user.name = name
             user.picture = picture
+            user.tags = tags
             user.save()
 
         # create token
