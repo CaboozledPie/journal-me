@@ -14,6 +14,8 @@ interface Post {
 
 const API_URL =
   "http://ec2-35-88-153-74.us-west-2.compute.amazonaws.com:8000/api/journal/entries/";
+const DELETE_URL =
+  "http://ec2-35-88-153-74.us-west-2.compute.amazonaws.com:8000/api/journal/delete-entry/";
 
 const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
   const [text, setText] = useState("");
@@ -52,7 +54,7 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
         }
 
         const data = await res.json();
-        console.log("Fetched entries:", data);
+        console.log("Fetched entries 1:", data);
 
         // Auto adapt backend structure:
         // If backend returns {entries: [...]}
@@ -120,14 +122,52 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
       setText("");
       setTitle("");
     } catch (err) {
-      console.error("❌ Network error:", err);
+      console.error(" Network error:", err);
     }
   };
 
   // --- Local delete (frontend only) ---
-  const handleDelete = (index: number) => {
-    setPosts(posts.filter((_, i) => i !== index));
-  };
+  // const handleDelete = (index: number) => {
+  //   setPosts(posts.filter((_, i) => i !== index));
+  // };
+  const handleDelete = async (id: number) => {
+  try {
+    const accessToken = localStorage.getItem("access_token");
+    if (!accessToken) {
+      onLogout();
+      return;
+    }
+
+    const res = await fetch(`${DELETE_URL}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        "entry-id": id,
+      }),
+    });
+
+    console.log("DELETE response:", res.status);
+
+    const data = await res.json().catch(() => null);
+    console.log("DELETE response body:", data);
+
+    if (!res.ok) {
+      alert(`Delete failed: ${data?.detail || res.statusText}`);
+      return;
+    }
+
+    // ✔ 用 id 删除 UI
+    setPosts(posts.filter(p => p.id !== id));
+
+  } catch (err) {
+    console.error("Delete error:", err);
+  }
+};
+
+  
 
   // --- Start editing ---
   const startEditing = (index: number) => {
@@ -210,7 +250,7 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
                       <button className="edit-post-btn" onClick={() => startEditing(i)}>
                         Edit
                       </button>
-                      <button className="delete-post-btn" onClick={() => handleDelete(i)}>
+                      <button className="delete-post-btn" onClick={() => handleDelete(p.id)}>
                         Delete
                       </button>
                     </div>
