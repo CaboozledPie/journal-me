@@ -9,6 +9,7 @@ interface Post {
   id: number;
   title?: string;
   content: string;
+  image?: string;
 }
 
 const API_URL =
@@ -93,6 +94,11 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
     setPosts(posts.filter((_, i) => i !== index));
   };
 
+  const MEDIA_URL =
+  "http://ec2-35-88-153-74.us-west-2.compute.amazonaws.com:8000/media/";
+
+  const name = localStorage.getItem("name");
+
   return (
     <div className="home-container">
       <header className="home-header">
@@ -109,7 +115,8 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
             e.preventDefault();
             handleAdd();
           }}
-        >
+        > 
+          <h2> Hi {name}!</h2>
           <h2>Create a New Post</h2>
 
           <label htmlFor="title">Title:</label>
@@ -158,6 +165,14 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
               <div key={p.id} className="post-item">
                 <h3>{p.title}</h3>
                 <p>{p.content}</p>
+               {p.image && (
+                  <img
+                    src={`${MEDIA_URL}${p.image}`}
+                    alt="Post"
+                    className="post-image"
+                  />
+                )}
+
 
                 <div className="post-buttons">
                   <button
