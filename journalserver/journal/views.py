@@ -47,7 +47,7 @@ def entry_list(request):
     user = request.user
 
     if request.method == 'GET':
-        entries = JournalEntry.objects.filter(user=user).values('id', 'title', 'content', 'image', 'created_at')
+        entries = JournalEntry.objects.filter(user=user).values('id', 'title', 'content', 'image', 'created_at', 'tags')
         
         query = request.GET.get("query");
         print("query: ", query)
@@ -56,7 +56,8 @@ def entry_list(request):
             return Response({"entries": list(entries)})
         else:
             entries = entries.filter(Q(title__icontains=query) |
-                Q(content__icontains=query)
+                Q(content__icontains=query) |
+                Q(tags__icontains=query)
             )
             return Response({"entries": list(entries)})
 
