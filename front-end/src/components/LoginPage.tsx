@@ -87,12 +87,46 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
               style={{
                 color: "black",
               }}
-            onClick={() => {
-              console.log("🔧 Test Login Activated (Skipping Google)");
+            //onClick={() => {
+              // console.log("🔧 Test Login Activated (Skipping Google)");
               // Fake token for testing
-              localStorage.setItem("access_token", "TEST_TOKEN");
-              onLogin(); // redirect to homepage
-            }}
+              //localStorage.setItem("access_token", "TEST_TOKEN");
+              //onLogin(); // redirect to homepage
+              
+            //}}
+
+            onClick={async () => {
+              console.log("🔧 Test Login Activated (Skipping Google)");
+
+                fetch(`${url}auth/test-auth/`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({}),
+              })
+                .then((res) => res.json())
+                .then((data) => {
+                  console.log("Backend verification result:", data);
+                  if (data.access) {
+                    // Save access_token to localStorage (using the access token returned from backend)
+                    localStorage.setItem("access_token", data.access);
+                    // Optional: save refresh token for future access token refresh
+                    if (data.refresh) {
+                      localStorage.setItem("refresh_token", data.refresh);
+                    }
+                    console.log("Access token saved to localStorage");
+                    onLogin(); // redirect to homepage on success
+                    console.log("成功了")
+                    localStorage.setItem("access_token", data.access);
+                    localStorage.setItem("name", data.name);
+                    console.log(data.access);
+                  } 
+              });
+
+
+  // continue to homepage
+  onLogin();
+}}
+
           >
             Test Login (Skip Google)
           </button>
