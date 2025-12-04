@@ -303,7 +303,7 @@ const saveEdit = (index: number) => {
           {posts.length === 0 ? (
             <p>No posts yet.</p>
           ) : (
-            posts.map((p, i) => (
+            posts.slice().sort((a, b) => b.id - a.id).map((p, i) => (
               <div key={p.id} className="post-item">
                 {editingIndex === i ? (
                   <>
@@ -348,6 +348,7 @@ const saveEdit = (index: number) => {
             ))
           )}
         </div>
+        
       </main>
     </div>
   );
