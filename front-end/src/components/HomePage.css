@@ -334,6 +334,7 @@ p{
   border-radius: 12px;
   border: 1px solid #c9c6ff;
   font-size: 15px;
+  color: black;
   background: #f4f3ff;
   transition: 0.2s ease;
 }
