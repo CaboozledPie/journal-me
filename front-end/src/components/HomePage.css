@@ -131,6 +131,21 @@
   color: var(--pastel-blue);
 }
 
+.title-input {
+  width: 100%;
+  min-height: 30px;
+  font-size: 1rem;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--pastel-teal);
+  background: white;
+  color: var(--pastel-blue);
+}
+
+label{
+  color: var(--pastel-blue);
+}
+
 .post-input::placeholder {
   color: #94a3a8;
 }
@@ -181,6 +196,18 @@
 
 .post-item p {
   margin: 0 0 10px 0;
+}
+
+.post-image {
+  width: 100%;
+  max-width: 350px;      /* keeps images nicely sized */
+  height: auto;
+  border-radius: 12px;    /* smooth rounded corners */
+  margin-top: 10px;
+  margin-bottom: 10px;
+  object-fit: cover;      /* keeps images from stretching weirdly */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); /* soft shadow */
+  display: block;
 }
 
 /* --------------------------------------- */
