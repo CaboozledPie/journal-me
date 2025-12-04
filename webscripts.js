@@ -29,6 +29,30 @@ function handleCredentialResponse(response) {
         .catch((err) => console.error("Error:", err));
 };
 
+window.testLogin = function() {
+    fetch(`${API_URL}auth/test-auth/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+    })
+        .then((res) => {
+            if (!res.ok) {
+                // Parse the error response body
+                return res.json().then(err => {
+                    console.error("Backend error response:", err);
+                    throw new Error(err.detail || JSON.stringify(err)); // Assuming 'detail' or general JSON error
+                });
+            }
+            return res.json();
+        })
+        .then((data) => {
+            console.log("Backend response:", data);
+            accessToken = data.access // change to localStorage later!
+            alert(`Logged in as: ${data.name}`);
+        })
+        .catch((err) => console.error("Error:", err));
+}
+
 window.postJournalEntry = function() {
     const form = document.getElementById("journal-entry-form");
     const formData = new FormData(form);
