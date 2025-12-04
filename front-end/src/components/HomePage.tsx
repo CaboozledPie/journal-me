@@ -7,8 +7,9 @@ interface PostPageProps {
 
 interface Post {
   id: number;
-  title?: string;
-  content: string;
+  title: string;      
+  content: string;    
+  image?: string;     // optional
 }
 
 const API_URL =
@@ -16,16 +17,16 @@ const API_URL =
 
 const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
   const [text, setText] = useState("");
+  const [title, setTitle] = useState("");
   const [posts, setPosts] = useState<Post[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editText, setEditText] = useState("");
 
-  // --- Fetch entries from backend (GET only) ---
+  // --- Fetch entries from backend ---
   useEffect(() => {
     const fetchEntries = async () => {
       try {
         const accessToken = localStorage.getItem("access_token");
-
         if (!accessToken) {
           console.error("Access token not found");
           onLogout();
@@ -42,107 +43,104 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
 
         if (!res.ok) {
           if (res.status === 401 || res.status === 403) {
-            console.error("Authentication failed, clearing token");
+            console.error("Authentication failed");
             localStorage.removeItem("access_token");
             onLogout();
+            return;
           }
-          throw new Error(`Failed to fetch data: ${res.status}`);
+          throw new Error(`Fetch failed: ${res.status}`);
         }
 
         const data = await res.json();
-        setPosts(data.entries || []);
-      } catch (error) {
-        console.error("Error fetching posts:", error);
+        console.log("Fetched entries:", data);
+
+        // Auto adapt backend structure:
+        // If backend returns {entries: [...]}
+        if (Array.isArray(data)) {
+          setPosts(data);
+        } else if (Array.isArray(data.entries)) {
+          setPosts(data.entries);
+        } else {
+          setPosts([]);
+        }
+      } catch (err) {
+        console.error("Error fetching posts:", err);
       }
     };
 
     fetchEntries();
   }, [onLogout]);
 
-  // Add post (Frontend-only, no backend call)
+  // --- Add new Post ---
   const handleAdd = async () => {
-    if (!text.trim()) return;
+    if (!title.trim() || !text.trim()) {
+      alert("Title and content cannot be empty");
+      return;
+    }
 
-    const newPost = {
-      title: "Untitled",
-      content: text,
-    };
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("content", text);
 
     try {
-      // Get the access token from localStorage (assuming it was stored after Google login)
       const accessToken = localStorage.getItem("access_token");
-
       if (!accessToken) {
-        alert("Access token not found, please log in again");
+        alert("Access token missing");
         onLogout();
         return;
+      }
+
+      console.log("📤 Sending POST FormData:");
+      for (const pair of formData.entries()) {
+        console.log("➡️", pair[0], "=", pair[1]);
       }
 
       const res = await fetch(API_URL, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify(newPost),
+        body: formData,
       });
 
-      if (!res.ok) {
-        // Get detailed error information
-        const errorData = await res
-          .json()
-          .catch(() => ({ detail: "Unknown error" }));
-        console.error("Error response:", res.status, errorData);
+      console.log("🟡 Status:", res.status);
 
-        if (res.status === 403) {
-          alert(
-            `Insufficient permissions (403): ${
-              errorData.detail || "Access denied, please check your permissions"
-            }`
-          );
-        } else if (res.status === 401) {
-          alert("Authentication failed, please log in again");
-          localStorage.removeItem("access_token");
-          onLogout();
-        } else {
-          alert(`Failed to create post: ${errorData.detail || res.statusText}`);
-        }
+      const newPost = await res.json().catch(() => null);
+      console.log("🟢 Response:", newPost);
+
+      if (!res.ok) {
+        alert(`Failed: ${newPost?.detail || res.statusText}`);
         return;
       }
 
-      const data = await res.json();
+      // Insert new post at top
+      setPosts([newPost, ...posts]);
 
-      // Prepend the newly created post with the ID from backend
-      setPosts([data, ...posts]);
-
+      // Clear inputs
       setText("");
-    } catch (error) {
-      console.error("Error creating post:", error);
-      alert(
-        `Network error: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`
-      );
+      setTitle("");
+    } catch (err) {
+      console.error("❌ Network error:", err);
     }
   };
 
-  // Delete post (Frontend-only)
+  // --- Local delete (frontend only) ---
   const handleDelete = (index: number) => {
     setPosts(posts.filter((_, i) => i !== index));
   };
 
-  // Start editing
+  // --- Start editing ---
   const startEditing = (index: number) => {
     setEditingIndex(index);
     setEditText(posts[index].content);
   };
 
-  // Save edited post (Frontend-only)
+  // --- Save editing (frontend only) ---
   const saveEdit = (index: number) => {
     const updated = [...posts];
     updated[index].content = editText;
-
     setPosts(updated);
+
     setEditingIndex(null);
     setEditText("");
   };
@@ -157,8 +155,19 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
       </header>
 
       <main className="home-main">
+
+        {/* ------ Create Post UI ------ */}
         <div className="post-creator">
           <h2>Create a New Post</h2>
+
+          <input
+            className="post-title-input"
+            type="text"
+            placeholder="Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+
           <textarea
             className="post-input"
             rows={3}
@@ -166,11 +175,13 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
+
           <button className="add-post-btn" onClick={handleAdd}>
             Add Post
           </button>
         </div>
 
+        {/* ------ Posts List ------ */}
         <div className="posts-scroll">
           {posts.length === 0 ? (
             <p>No posts yet.</p>
@@ -185,27 +196,21 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
                       value={editText}
                       onChange={(e) => setEditText(e.target.value)}
                     />
-                    <button
-                      className="add-post-btn"
-                      onClick={() => saveEdit(i)}
-                    >
+                    <button className="add-post-btn" onClick={() => saveEdit(i)}>
                       Save
                     </button>
                   </>
                 ) : (
                   <>
+                    {/* ⭐ 显示标题 */}
+                    <h3 className="post-title">{p.title || "Untitled"}</h3>
                     <p>{p.content}</p>
+
                     <div className="post-buttons">
-                      <button
-                        className="edit-post-btn"
-                        onClick={() => startEditing(i)}
-                      >
+                      <button className="edit-post-btn" onClick={() => startEditing(i)}>
                         Edit
                       </button>
-                      <button
-                        className="delete-post-btn"
-                        onClick={() => handleDelete(i)}
-                      >
+                      <button className="delete-post-btn" onClick={() => handleDelete(i)}>
                         Delete
                       </button>
                     </div>
@@ -215,6 +220,7 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
             ))
           )}
         </div>
+
       </main>
     </div>
   );
