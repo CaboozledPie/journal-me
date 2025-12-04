@@ -24,7 +24,6 @@ PyJWT==2.10.1
 python-dateutil==2.9.0.post0
 requests==2.32.5
 rsa==4.9.1
-screen==1.0.1
 six==1.17.0
 sqlparse==0.5.3
 TimeConvert==3.0.13

@@ -43,7 +43,7 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
     };
 
     fetchEntries();
-  }, []);
+  }, [onLogout]);
 
   // Add post
   const handleAdd = async () => {

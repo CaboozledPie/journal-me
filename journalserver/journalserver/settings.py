@@ -11,10 +11,14 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# media
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -25,8 +29,12 @@ SECRET_KEY = 'django-insecure-73cv=r#w+f-ng3+k!novx=p5g*ow5^5pq#!u=py!s8n_4v!er3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+"ec2-35-88-153-74.us-west-2.compute.amazonaws.com",
+"*"
+]
 
+APPEND_SLASH = True
 
 # Application definition
 
@@ -43,12 +51,11 @@ INSTALLED_APPS = [
     # django apps
     'api',
     'authapi',
+    'journal',
     
     # cors
     'corsheaders',
 
-    # tells Django the journal app exists
-    'journal',
 ]
 
 MIDDLEWARE = [
