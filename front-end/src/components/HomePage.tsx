@@ -265,6 +265,13 @@ const saveEdit = (index: number) => {
                   </h3>
                     <h3 className="post-title">{p.title || "Untitled"}</h3>
                     <p>{p.content}</p>
+                    {p.image && (
+                  <img
+                    src={`${MEDIA_URL}${p.image}`}
+                    alt="Post"
+                    className="post-image"
+                  />
+                )}
 
                     <div className="post-buttons">
                       {/* <button className="edit-post-btn" onClick={() => startEditing(i)}>
