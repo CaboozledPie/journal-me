@@ -10,6 +10,7 @@ interface Post {
   title: string;      
   content: string;    
   image?: string;     // optional
+  created_at: string;   //time
 }
 
 const API_URL =
@@ -23,6 +24,7 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editText, setEditText] = useState("");
+  const [search, setSearch] = useState("");
 
   // --- Fetch entries from backend ---
   useEffect(() => {
@@ -167,15 +169,53 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
   }
 };
 
+
+//=============handle search================
+const handleSearch = async () => {
+  try {
+    const accessToken = localStorage.getItem("access_token");
+    if (!accessToken) {
+      onLogout();
+      return;
+    }
+
+    let url = API_URL;
+    if (search.trim() !== "") {
+      url += `?query=${encodeURIComponent(search.trim())}`;
+    }
+
+    const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!res.ok) return;
+
+    const data = await res.json();
+
+    if (Array.isArray(data)) setPosts(data);
+    else if (Array.isArray(data.entries)) setPosts(data.entries);
+    else setPosts([]);
+  } catch (err) {
+    console.error("Search error:", err);
+  }
+};
+
+
   
 
-  // --- Start editing ---
-  const startEditing = (index: number) => {
-    setEditingIndex(index);
-    setEditText(posts[index].content);
-  };
+  // // --- Start editing ---
+  // const startEditing = (index: number) => {
+  //   setEditingIndex(index);
+  //   setEditText(posts[index].content);
+  // };
 
   // --- Save editing (frontend only) ---
+  // ===========This is useless code right now, we don't have edit button needed==============
+
   const saveEdit = (index: number) => {
     const updated = [...posts];
     updated[index].content = editText;
@@ -184,6 +224,8 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
     setEditingIndex(null);
     setEditText("");
   };
+
+  // ===========This is useless code right now, we don't have edit button needed==============
 
   return (
     <div className="home-container">
@@ -220,6 +262,22 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
             Add Post
           </button>
         </div>
+        {/* ------ Search bar ------ */}
+      <div className="search-bar">
+        <input
+          className="search-input"
+          type="text"
+          placeholder="🔍 Search posts..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      <button className="search-btn" onClick={handleSearch}>
+          Search
+      </button>
+    </div>
+
+
+
 
         {/* ------ Posts List ------ */}
         <div className="posts-scroll">
@@ -243,13 +301,17 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
                 ) : (
                   <>
                     {/* ⭐ 显示标题 */}
+                  
+                  <h3 className="post-date">
+                    {p.created_at ? new Date(p.created_at).toLocaleDateString() : ""}
+                  </h3>
                     <h3 className="post-title">{p.title || "Untitled"}</h3>
                     <p>{p.content}</p>
 
                     <div className="post-buttons">
-                      <button className="edit-post-btn" onClick={() => startEditing(i)}>
+                      {/* <button className="edit-post-btn" onClick={() => startEditing(i)}>
                         Edit
-                      </button>
+                      </button> */}
                       <button className="delete-post-btn" onClick={() => handleDelete(p.id)}>
                         Delete
                       </button>
