@@ -54,7 +54,10 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                     }
                     console.log("Access token saved to localStorage");
                     onLogin(); // redirect to homepage on success
-                    console.log("Login successful");
+                    console.log("成功了")
+                    localStorage.setItem("access_token", data.access);
+                    localStorage.setItem("name", data.name);
+                    console.log(data.access);
                   } else {
                     alert("Google token verification failed!");
                   }

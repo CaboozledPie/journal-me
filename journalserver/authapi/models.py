@@ -8,5 +8,13 @@ class JournalUser(AbstractUser):
     email = models.EmailField(unique=True)
     name = models.CharField()
 
+    # streak fields
+    streak = models.IntegerField(default=0)
+    longest_streak = models.IntegerField(default=0)
+    last_entry_date = models.DateField(null=True, blank=True)
+
+    # tags
+    tags = models.JSONField(default=list)
+
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
