@@ -7,9 +7,10 @@ interface PostPageProps {
 
 interface Post {
   id: number;
-  title?: string;
-  content: string;
-  image?: string;
+  title: string;      
+  content: string;    
+  image?: string;     // optional
+  created_at: string;   //time
 }
 
 const API_URL =
@@ -22,6 +23,9 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
   const [image, setImage] = useState<File | null>(null);
+
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editText, setEditText] = useState("");
 
   // Fetch entries on mount
   useEffect(() => {
@@ -91,9 +95,56 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
   };
 
   // Delete post (frontend only)
-  const handleDelete = (index: number) => {
-    setPosts(posts.filter((_, i) => i !== index));
+  //const handleDelete = (index: number) => {
+    //setPosts(posts.filter((_, i) => i !== index));
+  //};
+
+  const handleDelete = async (id: number) => {
+  try {
+    const accessToken = localStorage.getItem("access_token");
+    if (!accessToken) {
+      onLogout();
+      return;
+    }
+
+    const res = await fetch(`${API_URL}journal/delete-entry/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        "entry-id": id,
+      }),
+    });
+
+    console.log("DELETE response:", res.status);
+
+    const data = await res.json().catch(() => null);
+    console.log("DELETE response body:", data);
+
+    if (!res.ok) {
+      alert(`Delete failed: ${data?.detail || res.statusText}`);
+      return;
+    }
+
+    // ✔ 用 id 删除 UI
+    setPosts(posts.filter(p => p.id !== id));
+
+  } catch (err) {
+    console.error("Delete error:", err);
+  }
+};
+
+const saveEdit = (index: number) => {
+    const updated = [...posts];
+    updated[index].content = editText;
+    setPosts(updated);
+
+    setEditingIndex(null);
+    setEditText("");
   };
+
 
   const MEDIA_URL =
   "http://ec2-35-88-153-74.us-west-2.compute.amazonaws.com:8000/media/";
@@ -158,7 +209,7 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
           </button>
         </form>
 
-        <div className="posts-scroll">
+        {/* <div className="posts-scroll">
           {posts.length === 0 ? (
             <p>No posts yet.</p>
           ) : (
@@ -183,6 +234,48 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
                     Delete
                   </button>
                 </div>
+              </div>
+            ))
+          )}
+        </div> */}
+        <div className="posts-scroll">
+          {posts.length === 0 ? (
+            <p>No posts yet.</p>
+          ) : (
+            posts.map((p, i) => (
+              <div key={p.id} className="post-item">
+                {editingIndex === i ? (
+                  <>
+                    <textarea
+                      className="post-input"
+                      rows={3}
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                    />
+                    <button className="add-post-btn" onClick={() => saveEdit(i)}>
+                      Save
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    {/* ⭐ 显示标题 */}
+                  
+                  <h3 className="post-date">
+                    {p.created_at ? new Date(p.created_at).toLocaleDateString() : ""}
+                  </h3>
+                    <h3 className="post-title">{p.title || "Untitled"}</h3>
+                    <p>{p.content}</p>
+
+                    <div className="post-buttons">
+                      {/* <button className="edit-post-btn" onClick={() => startEditing(i)}>
+                        Edit
+                      </button> */}
+                      <button className="delete-post-btn" onClick={() => handleDelete(p.id)}>
+                        Delete
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             ))
           )}
