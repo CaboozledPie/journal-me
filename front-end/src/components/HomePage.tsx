@@ -316,7 +316,7 @@ const saveEdit = (index: number) => {
      
         <div className="posts-scroll">
           {posts.length === 0 ? (
-            <p>No posts yet.</p>
+            <p className="no-posts-yet">No posts yet.</p>
           ) : (
             posts.slice().sort((a, b) => b.id - a.id).map((p, i) => (
               <div key={p.id} id={"block-" + i.toString()} className="post-item">

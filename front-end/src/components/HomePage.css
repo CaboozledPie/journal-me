@@ -157,6 +157,7 @@
 
 .intro-box h2 {
   color: var(--text-strong);
+  font-size: 22px; 
 }
 .intro-box {
   display: flex;
@@ -167,8 +168,12 @@
   width: 100%;
   gap: 8px; 
   align-items: center;
+  padding: 15px;
 }
 
+.no-posts-yet{
+  text-align: center;
+}
 .intro-greeting {
   display: flex; 
   flex-direction: column;
