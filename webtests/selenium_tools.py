@@ -16,7 +16,7 @@ def wait_class(driver, class_name):
 
 def wait_id_text(driver, id, text):
     # waits for an element of a given id that contains the given text, times out after 10s
-    xpath = f"//*[contains(@id, '{id}') and contains(text(), '{text}')]"
+    xpath = f"//*[contains(@id, '{id}') and contains(., '{text}')]"
     element = WebDriverWait(driver, timeout).until(
         EC.presence_of_element_located((By.XPATH, xpath))
     )
@@ -24,7 +24,7 @@ def wait_id_text(driver, id, text):
 
 def wait_class_text(driver, class_name, text):
     # waits for an element of a given class that contains the given text, times out after 10s
-    xpath = f"//*[contains(@class, '{class_name}') and contains(text(), '{text}')]"
+    xpath = f"//*[contains(@class, '{class_name}') and contains(., '{text}')]"
     element = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.XPATH, xpath))
     )

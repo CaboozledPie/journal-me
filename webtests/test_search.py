@@ -50,7 +50,7 @@ def test_search():
         search_button = selenium_tools.wait_class(driver, "search-btn").click()
 
         # verify query
-        assert selenium_tools.wait_class_text(driver, "post-title", "Test 1 " + test_id)
+        assert selenium_tools.wait_class_text(driver, "post-title", "Search Test 1 " + test_id)
         assert selenium_tools.wait_class_text(driver, "post-content", "i love cs35l! " + test_id)
         assert len(driver.find_elements(By.XPATH, f"//h3[@class='post-content' and text()='i hate cs35l! {test_id}']")) == 0
 
@@ -63,7 +63,7 @@ def test_search():
         search_button = selenium_tools.wait_class(driver, "search-btn").click()
     
         # verify query
-        assert selenium_tools.wait_class_text(driver, "post-title", "Test 2 " + test_id)
+        assert selenium_tools.wait_class_text(driver, "post-title", "Search Test 2 " + test_id)
         assert selenium_tools.wait_class_text(driver, "post-content", "i hate cs35l! " + test_id)
         assert len(driver.find_elements(By.XPATH, f"//h3[@class='post-content' and text()='i love cs35l! {test_id}']")) == 0
         
