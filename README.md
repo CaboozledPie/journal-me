@@ -11,6 +11,8 @@ First, install requirements: \
 To run normally, navigate to the front-end branch and run: \
 `npm run build` \
 `npm run preview` 
+\
+Then, open your browser and navigate to `http://localhost:5001`
 
 To run for testing, navigate to the front-end branch and run: \
 `npm run dev`
