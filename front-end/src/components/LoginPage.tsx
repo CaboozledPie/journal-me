@@ -13,7 +13,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h1 className="login-title">Welcome to Test Website</h1>
+        <h1 className="login-title">Welcome to JournalMe </h1>
 
         <div className="google-login">
           <p style={{ margin: "15px 0", fontWeight: 500 }}>
@@ -67,6 +67,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           />
           )}
 
+       {!ENABLE_GSI && (
       <button
        id="skip-google-btn"
         style={{
@@ -124,6 +125,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
       >
         Skip Google (Use test-auth)
       </button>
+        )}
 
 
         </div>

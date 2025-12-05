@@ -222,7 +222,7 @@ const saveEdit = (index: number) => {
   return (
     <div className="home-container">
       <header className="home-header">
-        <h1 className="home-title">Journal Posts</h1>
+        <h1 className="home-title">JournalMe</h1>
         <button className="logout-btn" onClick={onLogout}>
           Log Out
         </button>
