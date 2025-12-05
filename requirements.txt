@@ -2,6 +2,7 @@ Django
 djangorestframework
 djangorestframework-simplejwt
 Pillow
+pytest
 python-dotenv
 requests
 selenium
