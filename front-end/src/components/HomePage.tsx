@@ -276,20 +276,21 @@ const saveEdit = (index: number) => {
             required
           />
 
-          <label htmlFor="image">Image (optional):</label>
-                      <label htmlFor="image" className="custom-file-btn">
-              Choose Image
-            </label>
+          <div className="file-input-row">
+  <label htmlFor="image" className="custom-file-btn">
+    Choose Image
+  </label>
 
-            <input
-              type="file"
-              id="image"
-              name="image"
-              accept="image/*"
-              onChange={(e) => setImage(e.target.files?.[0] || null)}
-            />
+  {image && <p className="file-name">{image.name}</p>}
+</div>
 
-            {image && <p className="file-name">{image.name}</p>}
+<input
+  type="file"
+  id="image"
+  name="image"
+  accept="image/*"
+  onChange={(e) => setImage(e.target.files?.[0] || null)}
+/>
 
 
           <button type="submit" className="add-post-btn">
