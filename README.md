@@ -5,16 +5,14 @@ Project for CS 35L at UCLA.
 
 Instructions for running:
 
-First, install requirements:
-``
-pip install -r requirements.txt
-``
+First, install requirements: \
+`pip install -r requirements.txt` \
 
-To run normally, navigate to the front-end branch and run:
-``npm run build
-npm run preview``
+To run normally, navigate to the front-end branch and run: \
+`npm run build` \
+`npm run preview` \
 
-To run for testing, navigate to the front-end branch and run:
-``npm run dev``
-While this is running, navigate to the webtests directory and run:
-``pytest``
+To run for testing, navigate to the front-end branch and run: \
+`npm run dev` \
+While this is running, navigate to the webtests directory and run: \
+`pytest`
