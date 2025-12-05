@@ -229,14 +229,12 @@ const saveEdit = (index: number) => {
       </header>
 
       <main className="home-main">
-        <form
-          className="post-creator"
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleAdd();
-          }}
-        > 
+        <div className="left-column">
+        <div className="intro-box">
+          <div className="intro-greeting">
           <h2> Hi {name}!</h2>
+          <p className="streaks">Current streak 🔥 : {streak} day{streak !== 1 ? "s" : ""}</p>
+          </div>
           {profileImage && (
             <img
               src={profileImage}
@@ -244,8 +242,15 @@ const saveEdit = (index: number) => {
               className="profile-image"
             />
           )}
-          <p>🔥 Current streak: {streak} day{streak !== 1 ? "s" : ""}</p>
-          <h2>Create a New Post</h2>
+        </div>
+        <form
+          className="post-creator"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleAdd();
+          }}
+        > 
+          <h2>Create a New Entry</h2>
 
           <label htmlFor="title">Title:</label>
           <input
@@ -272,19 +277,27 @@ const saveEdit = (index: number) => {
           />
 
           <label htmlFor="image">Image (optional):</label>
-          <input
-            type="file"
-            id="image"
-            name="image"
-            accept="image/*"
-            onChange={(e) => setImage(e.target.files?.[0] || null)}
-          />
+                      <label htmlFor="image" className="custom-file-btn">
+              Choose Image
+            </label>
+
+            <input
+              type="file"
+              id="image"
+              name="image"
+              accept="image/*"
+              onChange={(e) => setImage(e.target.files?.[0] || null)}
+            />
+
+            {image && <p className="file-name">{image.name}</p>}
+
 
           <button type="submit" className="add-post-btn">
             Add Post
           </button>
         </form>
-
+        </div>
+        <div className = "right-column"> 
           {/* ------ Search bar ------ */}
             <div className="search-bar">
               <input
@@ -316,11 +329,13 @@ const saveEdit = (index: number) => {
                 ) : (
                   <>
                     {/* ⭐ 显示标题 */}
-                  
+                  <div className="post-header">
+                    <h3 id={"post-title-" + i.toString()}className="post-title"> {p.title || "Untitled"}</h3>
                    <h3 id={"post-date-" + i.toString()} className="post-date">
                     { new Date(p.created_at).toLocaleDateString() }
                   </h3>
-                    <h3 id={"post-title-" + i.toString()}className="post-title">{p.title || "Untitled"}</h3>
+                   
+                    </div>
                     <p id={"post-content-" + i.toString()} className="post-content">{p.content}</p>
                     {p.image && (
                   <img id={"post-image-" + i.toString()}
@@ -338,13 +353,14 @@ const saveEdit = (index: number) => {
                         Delete
                       </button>
                     </div>
+                    
                   </>
                 )}
               </div>
             ))
           )}
         </div>
-        
+       </div> 
       </main>
     </div>
   );
