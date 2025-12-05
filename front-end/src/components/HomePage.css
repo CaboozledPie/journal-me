@@ -124,6 +124,16 @@
   flex-shrink: 0; 
 }
 
+.file-input-row {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* space between button and filename */
+}
+
+.file-name {
+  margin: 0;
+}
+
 .post-creator h2
 {
   color: var(--text-strong);
@@ -143,6 +153,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: 0.2s ease;
+  text-align: center;
 }
 
 .custom-file-btn:hover {
