@@ -14,5 +14,6 @@ To run normally, navigate to the front-end branch and run: \
 
 To run for testing, navigate to the front-end branch and run: \
 `npm run dev`
+\
 While this is running, navigate to the webtests directory and run: \
 `pytest`
