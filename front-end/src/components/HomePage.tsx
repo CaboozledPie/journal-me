@@ -10,8 +10,10 @@ interface Post {
   id: number;
   title: string;      
   content: string;    
+  tags?: string[];
   image?: string;     // optional
   created_at: string;   //time
+  
 }
 
 const API_URL =
@@ -25,6 +27,9 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
   const [text, setText] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [streak, setStreak] = useState<number>(0);
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
 
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editText, setEditText] = useState("");
@@ -65,6 +70,7 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
         });
         const data = await res.json();
         setStreak(data.streak || 0);
+        setAvailableTags(data.tags || []);
       } catch (err) {
         console.error("Error fetching streak:", err);
       }
@@ -87,6 +93,7 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
     const formData = new FormData();
     formData.append("title", title);
     formData.append("content", text);
+    formData.append("tags", selectedTags.join(", "));
     if (image) formData.append("image", image);
 
 
@@ -230,88 +237,109 @@ const saveEdit = (index: number) => {
 
       <main className="home-main">
         <div className="left-column">
-        <div className="intro-box">
-          <div className="intro-greeting">
-          <h2> Hi {name}!</h2>
-          <p className="streaks">Current streak 🔥 : {streak} day{streak !== 1 ? "s" : ""}</p>
+          <div className="intro-box">
+            <div className="intro-greeting">
+            <h2> Hi {name}!</h2>
+            <p className="streaks">Current streak 🔥 : {streak} day{streak !== 1 ? "s" : ""}</p>
+              </div>
+              {profileImage && (
+                <img
+                  src={profileImage}
+                  alt="Profile"
+                  className="profile-image"
+                />
+              )}
           </div>
-          {profileImage && (
-            <img
-              src={profileImage}
-              alt="Profile"
-              className="profile-image"
+          <form
+            className="post-creator"
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleAdd();
+            }}
+          > 
+            <h2>Create a New Entry</h2>
+
+            <label htmlFor="title">Title:</label>
+            <input
+              className="title-input"
+              type="text"
+              id="title"
+              name="title"
+              placeholder="Add a title..."
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
             />
-          )}
+
+            <label htmlFor="content">Content:</label>
+            <textarea
+              className="post-input"
+              rows={3}
+              placeholder="Write your thoughts..."
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              id="content"
+              name="content"
+              required
+            />
+
+            <div className="tag-selector">
+              <p>Select tags:</p>
+              <div className="tag-list">
+                {availableTags.map(tag => (
+                  <button
+                    key={tag}
+                    type="button"
+                    className={selectedTags.includes(tag) ? "tag-btn selected" : "tag-btn"}
+                    onClick={() => {
+                      if (selectedTags.includes(tag)) {
+                        setSelectedTags(selectedTags.filter(t => t !== tag));
+                      } else {
+                        setSelectedTags([...selectedTags, tag]);
+                      }
+                    }}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="file-input-row">
+              <label htmlFor="image" className="custom-file-btn">
+                Choose Image
+              </label>
+              {image && <p className="file-name">{image.name}</p>}
+            </div>
+            
+            <input
+              type="file"
+              id="image"
+              name="image"
+              accept="image/*"
+              onChange={(e) => setImage(e.target.files?.[0] || null)}
+            />
+
+            <button type="submit" className="add-post-btn">
+              Add Post
+            </button>
+          </form>
         </div>
-        <form
-          className="post-creator"
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleAdd();
-          }}
-        > 
-          <h2>Create a New Entry</h2>
-
-          <label htmlFor="title">Title:</label>
-          <input
-            className="title-input"
-            type="text"
-            id="title"
-            name="title"
-            placeholder="Add a title..."
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-          />
-
-          <label htmlFor="content">Content:</label>
-          <textarea
-            className="post-input"
-            rows={3}
-            placeholder="Write your thoughts..."
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            id="content"
-            name="content"
-            required
-          />
-
-          <div className="file-input-row">
-  <label htmlFor="image" className="custom-file-btn">
-    Choose Image
-  </label>
-
-  {image && <p className="file-name">{image.name}</p>}
-</div>
-
-<input
-  type="file"
-  id="image"
-  name="image"
-  accept="image/*"
-  onChange={(e) => setImage(e.target.files?.[0] || null)}
-/>
-
-
-          <button type="submit" className="add-post-btn">
-            Add Post
-          </button>
-        </form>
-        </div>
+        
         <div className = "right-column"> 
           {/* ------ Search bar ------ */}
-            <div className="search-bar">
-              <input
-                className="search-input"
-                type="text"
-                placeholder="🔍 Search posts..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            <button className="search-btn" onClick={handleSearch}>
-                Search
-            </button>
-          </div>
+          <div className="search-bar">
+            <input
+              className="search-input"
+              type="text"
+              placeholder="🔍 Search posts..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          <button className="search-btn" onClick={handleSearch}>
+              Search
+          </button>
+        </div>
 
         {/* ------ Posts List ------ */}
      
@@ -332,19 +360,27 @@ const saveEdit = (index: number) => {
                     {/* ⭐ 显示标题 */}
                   <div className="post-header">
                     <h3 id={"post-title-" + i.toString()}className="post-title"> {p.title || "Untitled"}</h3>
-                   <h3 id={"post-date-" + i.toString()} className="post-date">
-                    { new Date(p.created_at).toLocaleDateString() }
-                  </h3>
-                   
-                    </div>
+                    <h3 id={"post-date-" + i.toString()} className="post-date">
+                      { new Date(p.created_at).toLocaleDateString() }
+                    </h3>
+              
+                  </div>
                     <p id={"post-content-" + i.toString()} className="post-content">{p.content}</p>
                     {p.image && (
-                  <img id={"post-image-" + i.toString()}
-                    src={`${MEDIA_URL}${p.image}`}
-                    alt="Post"
-                    className="post-image"
-                  />
-                )}
+                      <img id={"post-image-" + i.toString()}
+                        src={`${MEDIA_URL}${p.image}`}
+                        alt="Post"
+                        className="post-image"
+                      />
+                    )}
+
+                    {p.tags && p.tags.length > 0 && (
+                      <div className="post-tags">
+                        {p.tags.map((t: string) => (
+                          <span className="tag-pill" key={t}>{t}</span>
+                        ))}
+                      </div>
+                    )}
 
                     <div className="post-buttons">
                       {/* <button className="edit-post-btn" onClick={() => startEditing(i)}>
