@@ -29,6 +29,7 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
   const [streak, setStreak] = useState<number>(0);
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [customTag, setCustomTag] = useState("");
 
 
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -305,6 +306,32 @@ const saveEdit = (index: number) => {
               </div>
             </div>
 
+            <div className="custom-tag-input">
+              <input
+                type="text"
+                placeholder="Add a custom tag..."
+                value={customTag}
+                onChange={(e) => setCustomTag(e.target.value)}
+              />
+              <button
+                type="button"
+                className="add-custom-tag-btn"
+                onClick={() => {
+                  if (!customTag.trim()) return;
+                  if (!availableTags.includes(customTag.trim())) {
+                    setAvailableTags([...availableTags, customTag.trim()]);
+                  }
+                  if (!selectedTags.includes(customTag.trim())) {
+                    setSelectedTags([...selectedTags, customTag.trim()]);
+                  }
+                  setCustomTag(""); // clear input
+                }}
+              >
+                Add
+              </button>
+            </div>
+            
+            <p>Upload Image (optional):</p>
             <div className="file-input-row">
               <label htmlFor="image" className="custom-file-btn">
                 Choose Image
@@ -374,23 +401,19 @@ const saveEdit = (index: number) => {
                       />
                     )}
 
-                    {p.tags && p.tags.length > 0 && (
+                    <div className="post-buttons">
+                      <button id={"delete-" + i.toString()}className="delete-post-btn" onClick={() => handleDelete(p.id)}>
+                        Delete
+                      </button>
+                    </div>
+                    
+                    {p.tags && Array.isArray(p.tags) && p.tags.length > 0 && (
                       <div className="post-tags">
                         {p.tags.map((t: string) => (
                           <span className="tag-pill" key={t}>{t}</span>
                         ))}
                       </div>
                     )}
-
-                    <div className="post-buttons">
-                      {/* <button className="edit-post-btn" onClick={() => startEditing(i)}>
-                        Edit
-                      </button> */}
-                      <button id={"delete-" + i.toString()}className="delete-post-btn" onClick={() => handleDelete(p.id)}>
-                        Delete
-                      </button>
-                    </div>
-                    
                   </>
                 )}
               </div>
