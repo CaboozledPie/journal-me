@@ -132,7 +132,7 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
     }
   };
 
-//====================delete post========================
+//====================delete post function========================
 
   const handleDelete = async (id: number) => {
   try {
@@ -163,7 +163,7 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
       return;
     }
 
-    // ✔ 用 id 删除 UI
+ 
     setPosts(posts.filter(p => p.id !== id));
 
   } catch (err) {
@@ -173,9 +173,9 @@ const PostPage: React.FC<PostPageProps> = ({ onLogout }) => {
 
 
 
-//=====================search fucntion========================
 
-//=============handle search================
+
+//=============handle search function================
 const handleSearch = async () => {
   try {
     const accessToken = localStorage.getItem("access_token");
@@ -184,7 +184,7 @@ const handleSearch = async () => {
       return;
     }
 
-    // let url = API_URL;
+  
     let url = `${API_URL}journal/entries/`;
 
     if (search.trim() !== "") {
@@ -210,7 +210,7 @@ const handleSearch = async () => {
     console.error("Search error:", err);
   }
 };
-//===================useless function===================
+
 const saveEdit = (index: number) => {
     const updated = [...posts];
     updated[index].content = editText;
@@ -219,7 +219,7 @@ const saveEdit = (index: number) => {
     setEditingIndex(null);
     setEditText("");
   };
-//===================useless function===================
+
 
   const MEDIA_URL =
   "http://ec2-35-88-153-74.us-west-2.compute.amazonaws.com:8000/media/";
@@ -354,7 +354,9 @@ const saveEdit = (index: number) => {
         </div>
         
         <div className = "right-column"> 
-          {/* ------ Search bar ------ */}
+
+         
+          {/* ------ Search bar  ------ */}
           <div className="search-bar">
             <input
               className="search-input"
@@ -367,7 +369,7 @@ const saveEdit = (index: number) => {
               Search
           </button>
         </div>
-
+                
         {/* ------ Posts List ------ */}
      
         <div className="posts-scroll">
@@ -384,7 +386,7 @@ const saveEdit = (index: number) => {
                   </>
                 ) : (
                   <>
-                    {/* ⭐ 显示标题 */}
+          
                   <div className="post-header">
                     <h3 id={"post-title-" + i.toString()}className="post-title"> {p.title || "Untitled"}</h3>
                     <h3 id={"post-date-" + i.toString()} className="post-date">

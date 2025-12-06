@@ -25,7 +25,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           <GoogleLogin
             onSuccess={(credentialResponse) => {
               const idToken = credentialResponse.credential;
-              console.log("✅ Google ID Token:", idToken);
+              console.log("Google ID Token:", idToken);
               console.log("test1");
               // Send the token to backend for verification
               fetch(`${url}auth/google/`, {
@@ -61,7 +61,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                 });
             }}
             onError={() => {
-              console.log("❌ Google Login Failed");
+              console.log(" Google Login Failed");
               alert("Google login failed, please try again.");
             }}
           />
@@ -82,7 +82,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           borderRadius: "6px",
         }}
         onClick={() => {
-          console.log("🔧 Testing /auth/test-auth/ ...");
+          console.log(" Testing /auth/test-auth/ ...");
 
           
 
@@ -101,7 +101,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
             .then((data) => {
               console.log("Backend /test-auth/ result:", data);
 
-              // ⭐ save user info returned from backend
+              // save user info returned from backend
               if (data.access) localStorage.setItem("access_token", data.access);
               if (data.refresh) localStorage.setItem("refresh_token", data.refresh);
               if (data.name) localStorage.setItem("name", data.name);
@@ -111,7 +111,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
               // Get saved token (from previous Google login)
               const accessToken = localStorage.getItem("access_token");
               if (!accessToken) {
-                alert("❌ No access token found! Please login with Google first.");
+                alert(" No access token found! Please login with Google first.");
                 return;
               }
 

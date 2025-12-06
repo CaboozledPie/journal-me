@@ -12,7 +12,7 @@ function App() {
   const handleLogout = () => setIsLoggedIn(false);
 
   if (!ENABLE_GSI) {
-    // 不启用 Google，直接展示 skip 版 LoginPage
+  
   
     return <div>
       {isLoggedIn ? (
@@ -24,7 +24,7 @@ function App() {
 
   }
 
-  // 启用 Google
+
   return (
     <GoogleOAuthProvider clientId="219694033881-4od4hi84uakag1cf7fuucm6s6u8q7ef9.apps.googleusercontent.com">
       {isLoggedIn ? (
