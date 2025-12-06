@@ -31,7 +31,8 @@
 
 .home-container {
   width: 100vw;
-  height: 100vh;
+  min-height: 100vh;
+  overflow-y: auto;
   background: linear-gradient(135deg, var(--bg-light), var(--bg-light-2));
   display: flex;
   flex-direction: column;
@@ -121,7 +122,9 @@
   border-radius: 14px;
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
   transition: 0.2s ease;
-  flex-shrink: 0; 
+
+  /* allow it to grow naturally */
+  flex-shrink: 0;
 }
 
 .file-input-row {
@@ -139,6 +142,39 @@
   color: var(--text-strong);
   font-size: 18px; 
   margin: 0; 
+}
+
+.post-creator p {
+  align-self: flex-start;
+  margin-bottom: 6px;
+}
+
+.tag-btn {
+  margin: 4px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid #666;
+  background: #bdbdbd;
+  cursor: pointer;
+}
+
+.tag-btn.selected {
+  background: #80bfff;
+  border-color: #3399ff;
+}
+
+.tag-pill {
+  display: inline-block;
+  padding: 3px 8px;
+  background: #d9eaff;
+  border-radius: 10px;
+  margin-right: 6px;
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.upload-text {
+  align-items: left;
 }
 
 #image {
@@ -210,12 +246,9 @@
   display: flex;
   flex-direction: column;
   gap: 15px;
-  width: 400px;     /* sets the width of the left sidebar */
-  flex-shrink: 0;     /* prevents it from collapsing */
-  position: sticky;
-  top: 25px;          /* keeps column visible while scrolling */
-  margin-left: 20px; 
-  /* height: fit-content; */
+  width: 400px;
+  flex-shrink: 0;
+  margin-left: 20px;
 }
 
 .right-column {
@@ -289,13 +322,6 @@ label{
 /* --------------------------------------- */
 
 .posts-list {
-  /*display: block;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  max-width: 500px;
-  margin-top: 20px;
-  gap: 12px; */
 
   display: flex;           /* FIX: make it a flex container */
   flex-direction: column;  
@@ -306,7 +332,7 @@ label{
 }
 
 .post-item {
-
+  position: relative;
   background: var(--card-bg);
   color: var(--text-strong);
   width: 100%;
@@ -331,6 +357,45 @@ label{
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); /* soft shadow */
   display: block;
 }
+
+.post-tags {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  display: flex;
+  gap: 6px;
+}
+
+.custom-tag-input {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.add-custom-tag-btn {
+  padding: 6px 12px;
+  background: var(--button-main);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.add-custom-tag-btn:hover {
+  background: var(--button-main-hover);
+}
+
+.custom-tag-input input {
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid #666;
+  background: #bdbdbd;  
+  color: white;
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s ease;
+}
+
 
 /* --------------------------------------- */
 /*           EDIT + DELETE BUTTONS         */
@@ -427,8 +492,8 @@ p{
   gap: 40px;
   padding: 20px;
   box-sizing: border-box;
-  height: calc(100vh - 120px);
-  overflow: visible;
+  min-height: 0;
+  height: auto;
   width: 100%;
 
   justify-content: flex-start; /* centers horizontally */
