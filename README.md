@@ -17,9 +17,17 @@ Project for CS 35L (Dürschmid) at UCLA.
 * Daily streak tracking
 * Search entries by title, content, or tags
 * Delete and manage journal entries
+* Organize journal entries with tags + make custom tags
 * Built with React (Vite) frontend + Django backend
 
 ---
+# Diagrams
+
+<img width="1395" height="589" alt="Screenshot 2025-12-05 at 9 23 40 PM" src="https://github.com/user-attachments/assets/8a8c2960-cb8a-4edb-a141-0a674a9b61ca" />
+
+<img width="994" height="591" alt="Screenshot 2025-12-05 at 9 23 52 PM" src="https://github.com/user-attachments/assets/1a545f10-efb9-4380-b1ca-f22ea4ea6b02" />
+
+--
 
 # 📦 Running the App Locally
 
